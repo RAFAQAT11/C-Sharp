@@ -53,17 +53,17 @@ namespace CC
                         textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
                     continue;
                 }
-                if (i+1<text.Length && text[i] == '.')
+                if ( text[i] == '.')
                 {
                     // null
                     if (WhatIs(temp) == 1)
                     {
-                        if (text[i + 1] >= '0' && text[i + 1] <= '9')
+                        if (i+1<text.Length && (i + 1 < text.Length && text[i + 1] >= '0' && text[i + 1] <= '9'))
                         {
                             temp+=text[i];
                             continue;
                         }
-                        if ((text[i+1] <= 'z' && text[i+1] >= 'a') || text[i+1] <= 'Z' && text[i+1] >= 'A')
+                        if (i+1<text.Length && (i + 1 < text.Length && ((text[i + 1] <= 'z' && text[i + 1] >= 'a') || text[i + 1] <= 'Z' && text[i + 1] >= 'A')))
                         {
                             if (!list.Add(text[i].ToString(), line.ToString()))
                                 textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
@@ -73,16 +73,15 @@ namespace CC
                     // doted num
                     if (WhatIs(temp) == 3)
                     {
-                        MessageBox.Show(temp.ToString());
                         if (!list.Add(temp, line.ToString()))
                             textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
                         temp = "";
-                        if (text[i + 1] >= '0' && text[i + 1] <= '9')
+                        if (i+1<text.Length && (text[i + 1] >= '0' && text[i + 1] <= '9'))
                         {
                             temp += text[i];
                             continue;
                         }
-                        if ((text[i + 1] <= 'z' && text[i + 1] >= 'a') || text[i + 1] <= 'Z' && text[i + 1] >= 'A')
+                        if (i+1<text.Length &&((text[i + 1] <= 'z' && text[i + 1] >= 'a') || text[i + 1] <= 'Z' && text[i + 1] >= 'A'))
                         {
                             if (!list.Add(text[i].ToString(), line.ToString()))
                                 textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
@@ -102,12 +101,12 @@ namespace CC
                         if (!list.Add(temp, line.ToString()))
                             textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
                         temp = "";
-                        if (text[i + 1] >= '0' && text[i + 1] <= '9')
+                        if (i+1<text.Length && (text[i + 1] >= '0' && text[i + 1] <= '9'))
                         {
                             temp += text[i];
                             continue;
                         }
-                        if ((text[i + 1] <= 'z' && text[i + 1] >= 'a') || text[i + 1] <= 'Z' && text[i + 1] >= 'A')
+                        if (i+1<text.Length && ((text[i + 1] <= 'z' && text[i + 1] >= 'a') || text[i + 1] <= 'Z' && text[i + 1] >= 'A'))
                         {
                             if (!list.Add(text[i].ToString(), line.ToString()))
                                 textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
@@ -117,21 +116,25 @@ namespace CC
                     }
                     // unexpected
 
-                    if (!list.Add(temp, line.ToString()))
+                    if (!list.Add(text[i].ToString(), line.ToString()))
                         textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
-                    temp = "";
-                    if (text[i + 1] >= '0' && text[i + 1] <= '9')
-                    {
-                        temp += text[i];
-                        continue;
-                    }
-                    if ((text[i + 1] <= 'z' && text[i + 1] >= 'a') || text[i + 1] <= 'Z' && text[i + 1] >= 'A')
-                    {
-                        if (!list.Add(text[i].ToString(), line.ToString()))
-                            textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
-                        continue;
-                    }
-                    continue;
+                    //temp = "";
+                    //if(temp!="")
+                    //    if (!list.Add(temp, line.ToString()))
+                    //        textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
+                    //temp = "";
+                    //if (text[i + 1] >= '0' && text[i + 1] <= '9')
+                    //{
+                    //    temp += text[i];
+                    //    continue;
+                    //}
+                    //if ((text[i + 1] <= 'z' && text[i + 1] >= 'a') || text[i + 1] <= 'Z' && text[i + 1] >= 'A')
+                    //{
+                    //    if (!list.Add(text[i].ToString(), line.ToString()))
+                    //        textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\n";
+                    //    continue;
+                    //}
+                    //continue;
                 }
                 // char
                 if (text[i] == '\'')
@@ -285,10 +288,10 @@ namespace CC
             
             if (num > 0 && dot > 0)
                 return 3;
-            else if (num > 0)
-                return 2;
             else if (alpha > 0)
                 return 4;
+            else if (num > 0)
+                return 2;
             else
                 return 10;
         }
