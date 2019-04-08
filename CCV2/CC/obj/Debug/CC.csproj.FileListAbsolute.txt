@@ -1,0 +1,27 @@
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\bin\Debug\CC.exe.config
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\bin\Debug\CC.exe
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\bin\Debug\CC.pdb
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\obj\Debug\CC.csprojResolveAssemblyReference.cache
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\obj\Debug\CC.Form1.resources
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\obj\Debug\CC.Properties.Resources.resources
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\obj\Debug\CC.csproj.GenerateResource.Cache
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\obj\Debug\CC.exe
+c:\users\this\documents\visual studio 2013\Projects\CC\CC\obj\Debug\CC.pdb
+C:\Users\PM-Nawaz\Desktop\CC\CC\bin\Debug\CC.exe.config
+C:\Users\PM-Nawaz\Desktop\CC\CC\obj\Debug\CC.exe
+C:\Users\PM-Nawaz\Desktop\CC\CC\obj\Debug\CC.pdb
+C:\Users\PM-Nawaz\Desktop\CC\CC\bin\Debug\CC.exe
+C:\Users\PM-Nawaz\Desktop\CC\CC\bin\Debug\CC.pdb
+C:\Users\PM-Nawaz\Desktop\CC\CC\obj\Debug\CC.csprojResolveAssemblyReference.cache
+C:\Users\PM-Nawaz\Desktop\CC\CC\obj\Debug\CC.Form1.resources
+C:\Users\PM-Nawaz\Desktop\CC\CC\obj\Debug\CC.Properties.Resources.resources
+C:\Users\PM-Nawaz\Desktop\CC\CC\obj\Debug\CC.csproj.GenerateResource.Cache
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\bin\Debug\CC.exe.config
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\obj\Debug\CC.exe
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\obj\Debug\CC.pdb
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\bin\Debug\CC.exe
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\bin\Debug\CC.pdb
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\obj\Debug\CC.csprojResolveAssemblyReference.cache
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\obj\Debug\CC.Form1.resources
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\obj\Debug\CC.Properties.Resources.resources
+C:\Users\this\Documents\Visual Studio 2013\Projects\CCV2\CC\obj\Debug\CC.csproj.GenerateResource.Cache
