@@ -903,6 +903,648 @@ namespace CC
         //{
         //    return false;
         //}
-        
+
+        public bool WithDT()
+        {
+            if (arr[i].clss == "DT")
+            {
+                i++;
+                if (DTList())
+                    return true;
+            }
+            return false;
+        }
+        public bool DTList()
+        {
+            if (arr[i].clss == "ID")
+            {
+                i++;
+                if (AllInit())
+                    return true;
+            }
+            else if (Arr())
+                return true;
+            return false;
+        }
+
+        public bool Static_ST()
+        {
+            if (arr[i].clss == "STATIC")
+            {
+                i++;
+                return true;
+            }
+            return true;
+        }
+        public bool Const_ST()
+        {
+            if (arr[i].clss == "CONST")
+            {
+                i++;
+                return true;
+            }
+            return true;
+        }
+        public bool WithStaticConst_DT()
+        {
+            if (Static_ST())
+                if (Const_ST())
+                    if (WithDT())
+                        return true;
+            return false;
+        }
+        public bool SST()
+        {
+            if (WithID())
+            {
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    return true;
+                }
+            }
+            else if (WithStaticConst_DT())
+            {
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    return true;
+                }
+            }
+            else if (For_ST())
+                return true;
+            else if (DoWhile())
+            {
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    return true;
+                }
+            }
+            else if (If_Else())
+                return true;
+            else if(arr[i].clss == "CONTINUE")
+            {
+                i++;
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    return true;
+                }
+            }
+            else if (arr[i].clss == "BREAK")
+            {
+                i++;
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    return true;
+                }
+            }
+            else if (arr[i].clss == "RETURN")
+            {
+                i++;
+                if(Return_ST())
+                    if (arr[i].clss == "TERMINATOR")
+                    {
+                        i++;
+                        return true;
+                    }
+            }
+            else if (arr[i].clss == "THIS")
+            {
+                i++;
+                if (arr[i].clss == "DOT")
+                {
+                    i++;
+                    if(WithID())
+                        return true;
+                }
+            }
+            
+            return false;
+        }
+        public bool For_ST()
+        {
+            if (arr[i].clss == "FOR")
+            {
+                i++;
+                if (arr[i].clss == "OSB")
+                {
+                    i++;
+                    if(C1())
+                        if (arr[i].clss == "TERMINATOR")
+                        {
+                            i++;
+                            if(C2())
+                                if (arr[i].clss == "TERMINATOR")
+                                {
+                                    i++;
+                                    if(C3())
+                                        if (arr[i].clss == "CSB")
+                                        {
+                                            i++;
+                                            if (Body())
+                                                return true;
+                                        }
+                                }
+                        }
+                }
+            }
+            return false;
+        }
+        public bool C1()
+        {
+            if (OE())
+                return true;
+            else if (WithDT())
+                return true;
+            else if (WithID())
+                return true;
+            else if (arr[i].clss == "TERMINATOR")
+                return true;
+            return false;
+        }
+        public bool C2()
+        {
+            if (OE())
+                return true;
+            else if (arr[i].clss == "TERMINATOR")
+                return true;
+            return false;
+        }
+        public bool C3()
+        {
+            if (OE())
+                return true;
+            else if (WithDT())
+                return true;
+            else if (arr[i].clss == "TERMINATOR")
+                return true;
+            return false;
+        }
+        public bool DoWhile()
+        {
+            if (arr[i].clss == "DO")
+            {
+                i++;
+                if(Body())
+                    if (arr[i].clss == "WHILE")
+                    {
+                        i++;
+                        if (arr[i].clss == "OSB")
+                        {
+                            i++;
+                            if(OE())
+                                if (arr[i].clss == "CSB")
+                                {
+                                    i++;
+                                    return true;
+                                }
+                        }
+                    }
+            }
+            return false;
+        }
+        public bool Return_ST()
+        {
+            if (OE())
+                return true;
+            else if (arr[i].clss == "TERMINATOR")
+                return true;
+            return false;
+        }
+        public bool If_Else()
+        {
+            if(arr[i].clss == "IF")
+            {
+                i++;
+                if (arr[i].clss == "OSB")
+                {
+                    i++;
+                    if(OE())
+                        if (arr[i].clss == "CSB")
+                        {
+                            i++;
+                            if (Body())
+                                if (If_List())
+                                    return true;
+                        }
+                }
+            }
+            return false;
+        }
+        public bool If_List()
+        {
+            if (arr[i].clss == "ELSE")
+            {
+                i++;
+                if (Body())
+                    return true;
+                return false;
+            }
+            return true;
+        }
+        public bool Body()
+        {
+            if (SST())
+                return true;
+            else if (arr[i].clss == "OCB")
+            {
+                i++;
+                if(MST())
+                    if (arr[i].clss == "CCB")
+                    {
+                        i++;
+                        return true;
+                    }
+            }
+            return false;
+        }
+        public bool MST()
+        {
+            if (!SST())
+                return false;
+            else if (!MST())
+                return false;
+            return true;
+        }
+        public bool Method()
+        {
+            if(Static_ST())
+                if(VO())
+                    if(Ret_Type())
+                        if(ID_ST())
+                            if (arr[i].clss == "OSB")
+                            {
+                                i++;
+                                if(Args_ST())
+                                    if (arr[i].clss == "CSB")
+                                    {
+                                        i++;
+                                        if (Super_Class())
+                                            if (Body())
+                                                return true;
+                                    }
+                            }
+            return false;
+        }
+        public bool VO()
+        {
+            if (arr[i].clss == "VIRTUAL")
+            {
+                i++;
+                return true;
+            }
+            if (arr[i].clss == "OVERRIDE")
+            {
+                i++;
+                return true;
+            }
+            return true;
+        }
+        public bool Ret_Type()
+        {
+            if (arr[i].clss == "VOID" || arr[i].clss == "ID" )
+            {
+                i++;
+                return true;
+            }
+            else if (arr[i].clss == "DT")
+            {
+                i++;
+                if (DT2List())
+                    return true;
+            }
+            return false;
+        }
+        public bool DT2List()
+        {
+            if (arr[i].clss == "OLB")
+            {
+                i++;
+                if (!DT2List2())
+                    return false;
+            }
+            return true;
+        }
+        public bool DT2List2()
+        {
+            if (arr[i].clss == "CLB")
+            {
+                i++;
+                return true;
+            }
+            else if (arr[i].clss == "COMMA")
+            {
+                i++;
+                if (arr[i].clss == "CLB")
+                {
+                    i++;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool ID_ST()
+        {
+            if (arr[i].clss == "ID")
+            {
+                i++;
+                if (ID_STList())
+                    return true;
+            }
+            return false;
+        }
+        public bool ID_STList()
+        {
+            if (arr[i].clss == "DOT")
+            {
+                i++;
+                if (!ID_ST())
+                    return false;
+            }
+            return true;
+        }
+        public bool Super_Class()
+        {
+            if (arr[i].clss == "COLON")
+            {
+                i++;
+                if (arr[i].clss == "BASE")
+                {
+                    i++;
+                    if (arr[i].clss == "OSB")
+                    {
+                        i++;
+                        if(Params())
+                            if (arr[i].clss == "CSB")
+                            {
+                                i++;
+                                return true;
+                            }
+                    }
+                }
+                return false;
+            }
+            return true;
+        }
+        public bool Args()
+        {
+            if (WithDT())
+            {
+                if (Args_ST())
+                    return true;
+            }
+            else if (arr[i].clss == "ID")
+            {
+                i++;
+                if (ID3_ST())
+                    if (Args_ST())
+                        return true;
+            }
+            return false;
+        }
+        public bool Args_ST()
+        {
+            if (arr[i].clss == "COMMA")
+            {
+                i++;
+                if (!Args())
+                    return false;
+            }
+            return true;
+        }
+        public bool ID3_ST()
+        {
+            if (OBJ())
+                return true;
+            else if (Arr())
+                return true;
+            return false;
+        }
+        public bool WithAM()
+        {
+            if (AM_ST())
+                if (AMList())
+                    return true;
+            return false;
+        }
+        public bool AM_ST()
+        {
+            if (arr[i].clss == "AM")
+                i++;
+            return true;
+        }
+        public bool AMList()
+        {
+            if (Method())
+                return true;
+            else if (WithDT())
+            {
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    return true;
+                }
+            }
+            else if (arr[i].clss == "ID")
+            {
+                i++;
+                if (DECList())
+                    if (arr[i].clss == "TERMINATOR")
+                    {
+                        i++;
+                        return true;
+                    }
+            }
+            else if (Construct())
+                return true;
+            return false;
+        }
+        public bool DECList()
+        {
+            if (OBJ())
+                return true;
+            else if (Arr())
+                return true;
+            return false;
+        }
+        public bool Construct()
+        {
+            if (arr[i].clss == "ID")
+            {
+                i++;
+                if (arr[i].clss == "OSB")
+                {
+                    i++;
+                    if(Args())
+                        if (arr[i].clss == "CSB")
+                        {
+                            i++;
+                            if (Body())
+                                return true;
+                        }
+                }
+            }
+            return false;
+        }
+        public bool Class_ST()
+        {
+            if (Abstract_ST())
+                if (arr[i].clss == "CLASS")
+                {
+                    i++;
+                    if (arr[i].clss == "ID")
+                    {
+                        i++;
+                        if(Inherit_ST())
+                            if (arr[i].clss == "OCB")
+                            {
+                                i++;
+                                if(ClassList())
+                                    if (arr[i].clss == "CCB")
+                                    {
+                                        i++;
+                                        return true;
+                                    }
+                            }
+                    }
+                }
+            return false;
+        }
+        public bool Abstract_ST()
+        {
+            if (arr[i].clss == "ABSTRACT")
+                i++;
+            return true;
+        }
+        public bool Inherit_ST()
+        {
+            if (arr[i].clss == "COLON")
+            {
+                i++;
+                if (arr[i].clss == "ID")
+                {
+                    i++;
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+        public bool ClassList()
+        {
+            if (WithAM())
+            {
+                if (!ClassList())
+                    return false;
+            }
+            else if (!NBody())
+                return false;
+
+            return true;
+        }
+        public bool INTMethod()
+        {
+            if(Ret_Type())
+                if (arr[i].clss == "ID")
+                {
+                    i++;
+                    if (arr[i].clss == "OSB")
+                    {
+                        i++;
+                        if(Args())
+                            if (arr[i].clss == "CSB")
+                            {
+                                i++;
+                                return true;
+                            }
+                    }
+                }
+            return false;
+        }
+        public bool Interface_ST()
+        {
+            if (arr[i].clss == "INTERFACE")
+            {
+                i++;
+                if (arr[i].clss == "ID")
+                {
+                    i++;
+                    if (arr[i].clss == "OCB")
+                    {
+                        i++;
+                        if(INTMethod2())
+                            if (arr[i].clss == "CCB")
+                            {
+                                i++;
+                                return true;
+                            }
+                    }
+                }
+            }
+            return false;
+        }
+        public bool INTMethod2()
+        {
+            if (INTMethod())
+            {
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    if(INTMethod2())
+                        return true;
+                }
+                return false;
+            }
+            return true;
+        }
+        public bool NBody()
+        {
+            if (Class_ST())
+                return true;
+            else if (Interface_ST())
+                return true;
+            return false;
+        }
+        public bool Namespace_ST()
+        {
+            if (arr[i].clss == "NAMESPACE")
+            {
+                i++;
+                if (arr[i].clss == "ID")
+                {
+                    i++;
+                    if (arr[i].clss == "OCB")
+                    {
+                        i++;
+                        if(NamespaceBody())
+                            if (arr[i].clss == "CCB")
+                            {
+                                i++;
+                                return true;
+                            }
+                    }
+                }
+            }
+            return false;
+        }
+        public bool NamespaceBody()
+        {
+            if (NBody())
+            {
+                if (NamespaceBody())
+                    return true;
+                return false;
+            }
+            return true;
+        }
+        public bool Start()
+        {
+            if (Namespace_ST())
+                return true;
+            return false;
+        }
     }
 }
