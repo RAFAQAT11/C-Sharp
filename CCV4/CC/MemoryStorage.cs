@@ -18,7 +18,7 @@ namespace CC
                 list.Add(new StorageStructure(word, val, line));
                 return false;
             }
-            if (val == "string_const" || val == "char_const")
+            if (val == "STRING_CONST" || val == "CHAR_CONST")
                 word = word.Substring(1, word.Length - 2);
             list.Add(new StorageStructure(word, val, line));
             return true;

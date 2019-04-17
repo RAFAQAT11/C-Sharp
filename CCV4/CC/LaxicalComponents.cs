@@ -9,45 +9,58 @@ namespace CC
 {
     class LaxicalComponents
     {
-        string[] DT = { "int", "float", "char", "string" };
-        string[] AM = { "public", "private", "protected", "internal" };
-        string[] VO = { "virtual", "override"};
-        string[] remainingKW = { "abstract", "static", "interface", "base", "const", "namespace", "break", "new", "continue", "do", "return", "else", "this", "if", "while", "class", "for", "void"};
+        string[] DT = { "INT", "FLOAT", "CHAR", "STRING" };
+        string[] AM = { "PUBLIC", "PRIVATE", "PROTECTED", "INTERNAL" };
+        string[] VO = { "VIRTUAL", "OVERRIDE" };
+        string[] remainingKW = { "ABSTRACT", "STATIC", "INTERFACE", "BASE", "CONST", "NAMESPACE", "BREAK", "NEW", "CONTINUE", "DO", "RETURN", "ELSE", "THIS", "IF", "WHILE", "CLASS", "FOR", "VOID" };
+        //public LaxicalComponents()
+        //{
+        //    for (int i = 0; i < remainingKW.Length; i++)
+        //    {
+        //        if (i < DT.Length)
+        //            DT[i] = DT[i].ToUpper();
+        //        if (i < AM.Length)
+        //            AM[i] = AM[i].ToUpper();
+        //        if (i < VO.Length)
+        //            VO[i] = VO[i].ToUpper();
+        //        remainingKW[i] = remainingKW[i].ToUpper();
 
+        //    }
+        //}
 
 
         public string IsKeyword(string word)
         {
             for (int i = 0; i < DT.Length; i++)
-                if (DT[i] == word)
+                if (DT[i].ToLower() == word)
                     return "DT";
             for (int i = 0; i < AM.Length; i++)
-                if (AM[i] == word)
+                if (AM[i].ToLower() == word)
                     return "AM";
             if (word == "virtual" || word == "override")
                 return "VO";
             for (int i = 0; i < remainingKW.Length; i++)
-                if (remainingKW[i] == word)
-                    return word;
+                if (remainingKW[i].ToLower() == word)
+                    return remainingKW[i];
             return "none";
         }
 
         public string IsOperator(string word)
         {
             if (word == "++" || word == "--")
-                return "op1";
+                return "INCDEC";
             if (word == "!")
-                return "op2";
+                return "NOT";
             if (word == "*" || word == "/" || word == "%")
-                return "op3";
+                return "MDM";
             if (word == "+" || word == "-")
-                return "op4";
+                return "PM";
             if (word == ">" || word == "<" || word == ">=" || word == "<=" || word == "==" || word == "!=")
-                return "op5";
+                return "RO";
             if (word == "&&")
-                return "op6";
+                return "AND";
             if (word == "||")
-                return "op7";
+                return "OR";
             if (word == "=" || word == "-=" || word == "+=" || word == "/=" || word == "*=" || word == "%=")
                 return "ASSIGN-OPT";
             return "none";
@@ -56,17 +69,17 @@ namespace CC
         public string IsPunctuator(string word)
         {
             if (word == "{")
-                return "CO";
+                return "OCB";
             if (word == "}")
-                return "CC";
+                return "CCB";
             if (word == "[")
-                return "LO";
+                return "OLB";
             if (word == "]")
-                return "LC";
+                return "CLB";
             if (word == "(")
-                return "SO";
+                return "OSB";
             if (word == ")")
-                return "SC";
+                return "CSB";
             if (word == ".")
                 return "DOT";
             if (word == ",")

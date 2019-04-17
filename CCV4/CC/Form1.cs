@@ -38,8 +38,8 @@ namespace CC
             text = richTextBox1.Text;
             for (int i = 0; i < text.Length; i++)
             {
-
-
+                if (text[i] == '\t')
+                    continue;
                 if (i + 1 < text.Length && (text[i] == '+' || text[i] == '-') && text[i + 1] >= '0' && text[i + 1] <= '9')
                     {
                         //MessageBox.Show(text[i].ToString());
@@ -93,6 +93,10 @@ namespace CC
                 }
                 if (text[i] == '(' || text[i] == ')' || text[i] == '{' || text[i] == '}' || text[i] == '[' || text[i] == ']' || text[i] == ',' || text[i] == ':' || text[i] == ';')
                 {
+                    if (temp != "")
+                        if (!list.Add(temp, line.ToString()))
+                            textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\r\n";
+                    temp = "";
                     if (!list.Add(text[i].ToString(), line.ToString()))
                         textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\r\n";
                     continue;
@@ -155,6 +159,11 @@ namespace CC
                             if (!list.Add(text[i].ToString(), line.ToString()))
                                 textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\r\n";
                             continue;
+                        }
+                        else
+                        {
+                            if (!list.Add(text[i].ToString(), line.ToString()))
+                                textBox1.Text += "error at line no " + line + " with \'" + temp + "\'" + "\r\n";
                         }
                         continue;
                     }
@@ -267,6 +276,7 @@ namespace CC
                 {
                     // & | && || + - ++ -- += -= / % * /= %= *= > < = ! <= >= != ==
                     //comments
+                    
                     if (i + 1 < text.Length && text[i] == '/' && (text[i + 1] == '/' || text[i + 1] == '*'))
                     {
                         if (text[i] == '/' && text[i + 1] == '/')
@@ -355,7 +365,7 @@ namespace CC
             arr = new StorageStructure[list.GetList().Count];
             int ii=0;
             list.GetList().ForEach(data => arr[ii++]=data );
-
+            richTextBox3.Text = "";
             //richTextBox2.Text = arr[0].word;
             //list.ForEach(data => richTextBox1.Text += data + "\n");
             
@@ -389,11 +399,12 @@ namespace CC
         private void button2_Click(object sender, EventArgs e)
         {
             SyntaxAnalyzer syntax = new SyntaxAnalyzer(arr);
-            bool result = syntax.WithID();
+            syntax.Namespace_ST();
+            bool result = arr[syntax.i].clss == "END" ? true : false;
             if (result)
-                richTextBox3.Text = "Successfully Parsed";
+                richTextBox3.Text = "Successfully Parsed::" + arr[syntax.i]+":" + arr[syntax.i].clss;
             else
-                richTextBox3.Text = "Error at line number " + syntax.i + " :"+arr[syntax.i-1].clss;
+                richTextBox3.Text = "Error  " + arr[syntax.i] + " :"+arr[syntax.i].clss;
             //richTextBox1.SelectionFont = new Font("times", ++fontSize, FontStyle.Bold);
         }
 
