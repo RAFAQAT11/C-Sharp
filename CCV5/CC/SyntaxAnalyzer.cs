@@ -274,10 +274,17 @@ namespace CC
         }
         public bool AllInit()
         {
-            if (Assign())
-                return true;
-            if (arr[i].clss == "TERMINATOR") // <========================= POSSIBLE PUNGA
-                return true;
+            if (arr[i].clss == "ASSIGN-OPT")
+            {
+                if (Assign())
+                    return true;
+                i--;
+            }
+            else
+            {
+                if (arr[i].clss == "TERMINATOR" || arr[i].clss == "COMMA" || arr[i].clss == "CSB") // <========================= POSSIBLE PUNGA
+                    return true;
+            }
             return false;
         }
         public bool OBJ()
@@ -422,7 +429,7 @@ namespace CC
         }
         public bool RE_()
         {
-            if (arr[i].clss == "ROP")
+            if (arr[i].clss == "RO")
             {
                 i++;
                 if (E())
@@ -1115,12 +1122,22 @@ namespace CC
                                         if (arr[i].clss == "CSB")
                                         {
                                             i++;
-                                            if (Body())
+                                            if ( CheckTerminator() || Body())
                                                 return true;
                                         }
                                 }
                         }
                 }
+            }
+            return false;
+        }
+
+        public bool CheckTerminator()
+        {
+            if (arr[i].clss == "TERMINATOR")
+            {
+                i++;
+                return true;
             }
             return false;
         }
@@ -1150,7 +1167,7 @@ namespace CC
                 return true;
             //else if (WithDT())
             //    return true;
-            else if (arr[i].clss == "TERMINATOR")
+            else if (arr[i].clss == "CSB")
                 return true;
             return false;
         }
@@ -1159,21 +1176,29 @@ namespace CC
             if (arr[i].clss == "DO")
             {
                 i++;
-                if(MST())
-                    if (arr[i].clss == "WHILE")
-                    {
-                        i++;
-                        if (arr[i].clss == "OSB")
+                if (arr[i].clss == "OCB")
+                {
+                    i++;
+                    if (MST())
+                        if (arr[i].clss == "CCB")
                         {
                             i++;
-                            if(OE())
-                                if (arr[i].clss == "CSB")
+                            if (arr[i].clss == "WHILE")
+                            {
+                                i++;
+                                if (arr[i].clss == "OSB")
                                 {
                                     i++;
-                                    return true;
+                                    if (OE())
+                                        if (arr[i].clss == "CSB")
+                                        {
+                                            i++;
+                                            return true;
+                                        }
                                 }
+                            }
                         }
-                    }
+                }
             }
             return false;
         }
@@ -1239,9 +1264,8 @@ namespace CC
             if (arr[i].clss == "CONST" || arr[i].clss == "STATIC" || arr[i].clss == "ID" || arr[i].clss == "DT" || arr[i].clss == "FOR" || arr[i].clss == "DO" || arr[i].clss == "CONTINUE" || arr[i].clss == "BREAK" || arr[i].clss == "RETURN" || arr[i].clss == "IF" || arr[i].clss == "THIS")
             {
                 if (SST())
-                    return true;
-                else if (MST())
-                    return true;
+                    if (MST())
+                        return true;
             }
             else if(arr[i].clss == "CCB")
                 return true;
@@ -1261,8 +1285,16 @@ namespace CC
                                     {
                                         i++;
                                         if (Super_Class())
-                                            if (MST())
-                                                return true;
+                                            if (arr[i].clss == "OCB")
+                                            {
+                                                i++;
+                                                if (MST())
+                                                    if (arr[i].clss == "CCB")
+                                                    {
+                                                        i++;
+                                                        return true;
+                                                    }
+                                            }
                                     }
                             }
             return false;
@@ -1378,10 +1410,16 @@ namespace CC
         
         public bool Args()
         {
-            if (ArgsList())
+            if (arr[i].clss == "DT" || arr[i].clss == "ID")
+            {
+                if (ArgsList())
                 return true;
-            else if (arr[i].clss == "CSB")
+            }
+            else 
+            {
+                if (arr[i].clss == "CSB")
                 return true;
+            }
             return false;
         }
         public bool ArgsList()
@@ -1405,8 +1443,8 @@ namespace CC
             if (arr[i].clss == "COMMA")
             {
                 i++;
-                if (!Args())
-                    return false;
+                if (Args())
+                    return true;
             }
             else if (arr[i].clss == "CSB")
                 return true;
@@ -1438,7 +1476,7 @@ namespace CC
                 if (arr[i].clss == "ID")
                 {
                     i++;
-                    if (Assign())
+                    if (AllInit())
                         return true;
                 }
             }
@@ -1500,6 +1538,8 @@ namespace CC
             }
             else if (Construct())
                 return true;
+            else if (NBody())
+                return true;
             return false;
         }
         public bool DECList()
@@ -1534,27 +1574,26 @@ namespace CC
         }
         public bool Class_ST()
         {
-            if(AM_ST())
-                if (Abstract_ST())
-                    if (arr[i].clss == "CLASS")
+            if (Abstract_ST())
+                if (arr[i].clss == "CLASS")
+                {
+                    i++;
+                    if (arr[i].clss == "ID")
                     {
                         i++;
-                        if (arr[i].clss == "ID")
-                        {
-                            i++;
-                            if (Inherit_ST())
-                                if (arr[i].clss == "OCB")
-                                {
-                                    i++;
-                                    if (ClassList())
-                                        if (arr[i].clss == "CCB")
-                                        {
-                                            i++;
-                                            return true;
-                                        }
-                                }
-                        }
+                        if (Inherit_ST())
+                            if (arr[i].clss == "OCB")
+                            {
+                                i++;
+                                if (ClassList())
+                                    if (arr[i].clss == "CCB")
+                                    {
+                                        i++;
+                                        return true;
+                                    }
+                            }
                     }
+                }    
             return false;
         }
         public bool Abstract_ST()
@@ -1587,15 +1626,19 @@ namespace CC
         }
         public bool ClassList()
         {
-            if (WithAM())
+            if(arr[i].clss == "AM" || arr[i].clss == "STATIC" || arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
             {
-                if (ClassList())
+                if (WithAM())
+                {
+                    if (ClassList())
+                        return true;
+                }
+            }
+            else
+            {
+                if (arr[i].clss == "CCB")
                     return true;
             }
-            else if (NBody())
-                return true;
-            else if (arr[i].clss=="CCB")
-                return true;
             return false;
         }
         public bool INTMethod()
@@ -1657,13 +1700,10 @@ namespace CC
         }
         public bool NBody()
         {
-            if (AM_ST())
-            {
-                if (Class_ST())
-                    return true;
-                else if (Interface_ST())
-                    return true;
-            }
+            if (Class_ST())
+                return true;
+            else if (Interface_ST())
+                return true;    
             return false;
         }
         public bool Namespace_ST()
@@ -1690,14 +1730,27 @@ namespace CC
         }
         public bool NamespaceBody()
         {
-            if (NBody())
+            if (arr[i].clss == "AM" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
             {
-                if (NamespaceBody())
-                    return true;
-                return false;
+                if (WithAMNBody())
+                {
+                    if (NamespaceBody())
+                        return true;
+                    return false;
+                }
             }
-            else if(arr[i].clss == "CCB")
-                return true;
+            else
+            {
+                if (arr[i].clss == "CCB")
+                    return true;
+            }
+            return false;
+        }
+        public bool WithAMNBody()
+        {
+            if (AM_ST())
+                if (NBody())
+                    return true;
             return false;
         }
         public bool Start()
@@ -1891,15 +1944,15 @@ namespace CC
         }
         public bool Alles()
         {
-            if (T_())
-                return true;
-            else if (E_())
-                return true;
-            else if (RE_())
+            if (OE_())
                 return true;
             else if (AE_())
                 return true;
-            else if (OE_())
+            else if (RE_())
+                return true;
+            else if (E_())
+                return true;
+            else if (T_())
                 return true;
             return false;
         }

@@ -399,9 +399,9 @@ namespace CC
         private void button2_Click(object sender, EventArgs e)
         {
             SyntaxAnalyzer syntax = new SyntaxAnalyzer(arr);
-            syntax.Namespace_ST();
+            bool ret = syntax.Namespace_ST();
             bool result = arr[syntax.i].clss == "END" ? true : false;
-            if (result)
+            if (ret && result)
                 richTextBox3.Text = "Successfully Parsed::" + arr[syntax.i]+":" + arr[syntax.i].clss;
             else
                 richTextBox3.Text = "Error  " + arr[syntax.i] + " :"+arr[syntax.i].clss;
