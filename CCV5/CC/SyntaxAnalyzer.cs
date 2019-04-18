@@ -1008,7 +1008,7 @@ namespace CC
                 i++;
                 return true;
             }
-            else if (arr[i].clss == "VIRTUAL" || arr[i].clss == "OVERRIDE" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" )
+            else if (arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" )
                 return true;
             return false;
         }
@@ -1301,12 +1301,7 @@ namespace CC
         }
         public bool VO()
         {
-            if (arr[i].clss == "VIRTUAL")
-            {
-                i++;
-                return true;
-            }
-            if (arr[i].clss == "OVERRIDE")
+            if (arr[i].clss == "VO")
             {
                 i++;
                 return true;
@@ -1510,7 +1505,7 @@ namespace CC
                 i++;
                 return true;
             }
-            else if (arr[i].clss == "STATIC" || arr[i].clss == "VIRTUAL" || arr[i].clss == "OVERRIDE" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "OLB" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
+            else if (arr[i].clss == "STATIC" || arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "OLB" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
                 return true;
             return false;
         }
