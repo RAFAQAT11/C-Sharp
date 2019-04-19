@@ -313,7 +313,7 @@ namespace CC
         }
         public bool OBJCList()
         {
-            if (OBJCList2())
+            if (OBJCall())
                 return true;
             else if (FunCall())
                 return true;
@@ -328,11 +328,17 @@ namespace CC
         }
         public bool OBJCList2()
         {
-            if (OBJCall())
-                return true;
-            else if (arr[i].clss == "TERMINATOR") //<----------------------------- POSSIBLE PUNGA
+            if (arr[i].clss == "DOT")
             {
-                return true;
+                if (OBJCall())
+                    return true;
+            }
+            else
+            {
+                if (arr[i].clss == "TERMINATOR") //<----------------------------- POSSIBLE PUNGA
+                {
+                    return true;
+                }
             }
             return false ;
         }
@@ -570,16 +576,22 @@ namespace CC
         }
         public bool OEList()
         {
-            if(FunCallOE())
-                return true;
-            else if(OBJCallOE())
-                return true;
-            else if(ArrOE())
-                return true;
-            else if(INCDEC())
-                return true;
-            else if (arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
-                return true;
+            if (arr[i].clss == "ID" || arr[i].clss == "DOT" || arr[i].clss == "OLB" || arr[i].clss == "INCDEC")
+            {
+                if (FunCallOE())
+                    return true;
+                else if (OBJCallOE())
+                    return true;
+                else if (ArrOE())
+                    return true;
+                else if (INCDEC())
+                    return true;
+            }
+            else
+            {
+                if (arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+                    return true;
+            }
             return false;
         }
         public bool FunCallOE()
@@ -806,7 +818,10 @@ namespace CC
                 i++;
                 if (Params())
                     if (arr[i].clss == "CSB")
+                    {
+                        i++;
                         return true;
+                    }
             }
 
             return false;
@@ -815,10 +830,16 @@ namespace CC
         {
             //if (!(arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR"  || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR"))
             //    return true;
-            if (Param2())
-                return true;
-            else if (arr[i].clss == "CSB")
-                return true;
+            if (arr[i].clss == "ID" || arr[i].clss == "INT_CONST" || arr[i].clss == "FLOAT_CONST" || arr[i].clss == "CHAR_CONST" || arr[i].clss == "STRING_CONST" || arr[i].clss == "NOT" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
+            {
+                if (Param2())
+                    return true;
+            }
+            else
+            {
+                if (arr[i].clss == "CSB")
+                    return true;
+            }
             return false;
         }
         public bool Param2()
@@ -853,7 +874,10 @@ namespace CC
                 i++;
                 if (OE())
                     if (arr[i].clss == "CLB")
+                    {
+                        i++;
                         return true;
+                    }
             }
 
             return false;
@@ -1017,18 +1041,31 @@ namespace CC
             if (arr[i].clss == "CONST")
             {
                 i++;
-                return true;
+                if(DT_Types())
+                    if (arr[i].clss == "ID")
+                    {
+                        i++;
+                        if(AllInit())
+                            if (arr[i].clss == "TERMINATOR")
+                            {
+                                i++;
+                                return true;
+                            }
+                    }
             }
-            else if (arr[i].clss == "DT")
-                return true;
+            //else if (arr[i].clss == "DT")
+            //    return true;
             return false;
         }
         public bool WithStaticConst_DT()
         {
             if (Static_ST())
-                if (Const_ST())
+                if (arr[i].clss == "CONST")
+                {
+                    i++;
                     if (WithDT())
                         return true;
+                }
             return false;
         }
         public bool SST()
@@ -1273,30 +1310,26 @@ namespace CC
         }
         public bool Method()
         {
-            if(Static_ST())
-                if(VO())
-                    if(Ret_Type())
-                        if(ID_ST())
-                            if (arr[i].clss == "OSB")
+            if (arr[i].clss == "OSB")
+            {
+                i++;
+                if (Args())
+                    if (arr[i].clss == "CSB")
+                    {
+                        i++;
+                        if (Super_Class())
+                            if (arr[i].clss == "OCB")
                             {
                                 i++;
-                                if(Args())
-                                    if (arr[i].clss == "CSB")
+                                if (MST())
+                                    if (arr[i].clss == "CCB")
                                     {
                                         i++;
-                                        if (Super_Class())
-                                            if (arr[i].clss == "OCB")
-                                            {
-                                                i++;
-                                                if (MST())
-                                                    if (arr[i].clss == "CCB")
-                                                    {
-                                                        i++;
-                                                        return true;
-                                                    }
-                                            }
+                                        return true;
                                     }
                             }
+                    }
+            }               
             return false;
         }
         public bool VO()
@@ -1304,20 +1337,42 @@ namespace CC
             if (arr[i].clss == "VO")
             {
                 i++;
-                return true;
+                if(VOList())
+                    return true;
             }
-            else if (arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "DT")
-                return true;
+            //else if (arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "DT")
+            //    return true;
             return false;
         }
-        public bool Ret_Type()
+        public bool VOList()
         {
-            if (arr[i].clss == "VOID" || arr[i].clss == "ID" )
+            if (arr[i].clss == "DT" || arr[i].clss == "VOID")
             {
-                i++;
-                return true;
+                if(DT_Types())
+                {
+                    if (arr[i].clss == "ID")
+                    {
+                        i++;
+                        if (Method())
+                            return true;
+                    }
+                }
+                else if (arr[i].clss == "VOID")
+                {
+                    i++;
+                    if (arr[i].clss == "ID")
+                    {
+                        i++;
+                        if (Method())
+                            return true;
+                    }
+                }
             }
-            else if (arr[i].clss == "DT")
+            return false;
+        }
+        public bool DT_Types()
+        {
+            if (arr[i].clss == "DT" || arr[i].clss == "ID" )
             {
                 i++;
                 if (DT2List())
@@ -1494,8 +1549,9 @@ namespace CC
         public bool WithAM()
         {
             if (AM_ST())
-                if (AMList())
-                    return true;
+                if(Static_ST())
+                    if (AMList())
+                        return true;
             return false;
         }
         public bool AM_ST()
@@ -1511,8 +1567,10 @@ namespace CC
         }
         public bool AMList()
         {
-            if (Method())
+            if (AMList2())
                 return true;
+            //if (Method())
+            //    return true;
             else if (WithDT())
             {
                 if (arr[i].clss == "TERMINATOR")
@@ -1534,6 +1592,45 @@ namespace CC
             else if (Construct())
                 return true;
             else if (NBody())
+                return true;
+            return false;
+        }
+        public bool AMList2()
+        {
+            if (VO())
+                return true;
+            else if (Const_ST())
+                return true;
+            else if(DT_Types())
+            {
+                if (arr[i].clss == "ID")
+                {
+                    i++;
+                    if (AMList3())
+                        return true;
+                }
+            }
+            else if (arr[i].clss == "VOID")
+            {
+                i++;
+                if (arr[i].clss == "ID")
+                {
+                    i++;
+                    if (Method())
+                        return true;
+                }
+            }
+            return false;
+        }
+        public bool AMList3()
+        {
+            if (AllInit())
+                if (arr[i].clss == "TERMINATOR")
+                {
+                    i++;
+                    return true;
+                }
+            else if (Method())
                 return true;
             return false;
         }
@@ -1638,7 +1735,7 @@ namespace CC
         }
         public bool INTMethod()
         {
-            if(Ret_Type())
+            if(arr[i].clss == "VOID" || DT_Types())
                 if (arr[i].clss == "ID")
                 {
                     i++;
