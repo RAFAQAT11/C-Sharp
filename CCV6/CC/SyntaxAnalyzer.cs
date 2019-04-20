@@ -358,17 +358,22 @@ namespace CC
         
         public bool Values()
         {
-
-            if (Init())
-                return true;
+            if (arr[i].clss == "ID" || arr[i].clss == "INT_CONST" || arr[i].clss == "FLOAT_CONST" || arr[i].clss == "CHAR_CONST" || arr[i].clss == "STRING_CONST" || arr[i].clss == "NOT" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
+            {
+                if (Init())
+                    return true;
+            } 
             else if (arr[i].clss == "NEW")
             {
                 i++;
                 if (ASSList())
                     return true;
             }
-            else if (BInit())
-                return true;
+            else if (arr[i].clss == "OCB")
+            {
+                if (BInit())
+                    return true;
+            }
             else if (arr[i].clss == "ID")
             {
                 i++;
@@ -392,7 +397,7 @@ namespace CC
         }
         public bool OE_()
         {
-            if (arr[i].clss == "OR")
+            if (arr[i].clss == "OR" )
             {
                 i++;
                 if (AE())
@@ -400,7 +405,7 @@ namespace CC
                         return true;
                 return false;
             }
-            else if (arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB")
+            else if (arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "CCB")
                 return true;
             return false;
         }
@@ -422,7 +427,7 @@ namespace CC
                 return false;
             }
 
-            else if (arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+            else if (arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR" || arr[i].clss == "CCB")
                 return true;
             return false;
         }
@@ -443,7 +448,7 @@ namespace CC
                         return true;
                 return false;
             }
-            else if (arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+            else if (arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR" || arr[i].clss == "CCB")
                 return true;
             return false;
         }
@@ -464,7 +469,7 @@ namespace CC
                         return true;
                 return false;
             }
-            else if (arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+            else if (arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR" || arr[i].clss == "CCB")
                 return true;
             return false;
         }
@@ -485,7 +490,7 @@ namespace CC
                         return true;
                 return false;
             }
-            else if (arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+            else if (arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR" || arr[i].clss == "CCB")
                 return true;
             return false;
         }
@@ -576,7 +581,7 @@ namespace CC
         }
         public bool OEList()
         {
-            if (arr[i].clss == "ID" || arr[i].clss == "DOT" || arr[i].clss == "OLB" || arr[i].clss == "INCDEC")
+            if (arr[i].clss == "ID" || arr[i].clss == "DOT" || arr[i].clss == "OLB" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
             {
                 if (FunCallOE())
                     return true;
@@ -589,7 +594,7 @@ namespace CC
             }
             else
             {
-                if (arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+                if (arr[i].clss == "MDM" || arr[i].clss == "CCB" || arr[i].clss == "PM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
                     return true;
             }
             return false;
@@ -623,7 +628,7 @@ namespace CC
                 }
                 return false;
             }
-            else if (arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+            else if (arr[i].clss == "MDM" || arr[i].clss == "CCB" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
                 return true;
             return false;
         }
@@ -830,10 +835,11 @@ namespace CC
         {
             //if (!(arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR"  || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR"))
             //    return true;
-            if (arr[i].clss == "ID" || arr[i].clss == "INT_CONST" || arr[i].clss == "FLOAT_CONST" || arr[i].clss == "CHAR_CONST" || arr[i].clss == "STRING_CONST" || arr[i].clss == "NOT" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
+            if (arr[i].clss == "OCB" || arr[i].clss == "ID" || arr[i].clss == "NEW" || arr[i].clss == "INT_CONST" || arr[i].clss == "FLOAT_CONST" || arr[i].clss == "CHAR_CONST" || arr[i].clss == "STRING_CONST" || arr[i].clss == "NOT" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
             {
                 if (Param2())
                     return true;
+                
             }
             else
             {
@@ -845,8 +851,22 @@ namespace CC
         public bool Param2()
         {
             if (OE())
-                if(Param3())
+            {
+                if (Param3())
                     return true;
+            }
+            else if (arr[i].clss == "NEW")
+            {
+                i++;
+                if (ASSList())
+                    if (Param3())
+                        return true;
+            }
+            else if (BInit())
+            {
+                if (Param3())
+                    return true;
+            }
             return false;
         }
         public bool Param3()
@@ -896,28 +916,41 @@ namespace CC
         }
         public bool BInitList()
         {
-            if (ArrConst0())
+            if (arr[i].clss == "ID" || arr[i].clss == "INT_CONST" || arr[i].clss == "FLOAT_CONST" || arr[i].clss == "CHAR_CONST" || arr[i].clss == "STRING_CONST" || arr[i].clss == "NOT" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
             {
-                if (arr[i].clss == "CCB")
+                if (ArrConst0())
                 {
-                    i++;
-                    return true;
+                    if (arr[i].clss == "CCB")
+                    {
+                        i++;
+                        return true;
+                    }
                 }
             }
-            else if (ArrConst2())
-                if (arr[i].clss == "CCB")
-                {
-                    i++;
-                    return true;
-                }
+
+            else
+            {
+                if (ArrConst2())
+                    if (arr[i].clss == "CCB")
+                    {
+                        i++;
+                        return true;
+                    }
+            }
             return false;
         }
         public bool ArrConst0()
         {
-            if (ArrConst())
-                return true;
-            else if (arr[i].clss == "CCB")
-                return true;
+            if (arr[i].clss == "ID" || arr[i].clss == "INT_CONST" || arr[i].clss == "FLOAT_CONST" || arr[i].clss == "CHAR_CONST" || arr[i].clss == "STRING_CONST" || arr[i].clss == "NOT" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
+            {
+                if (ArrConst())
+                    return true;
+            } 
+            else
+            {
+                if (arr[i].clss == "CCB")
+                    return true;
+            }
             return false;
         }
         public bool ArrConst()
@@ -936,17 +969,26 @@ namespace CC
                     return true;
                 return false;
             }
-            else if(arr[i].clss == "TERMINATOR")
-                return true;
+            else
+            {
+                if (arr[i].clss == "CCB")
+                    return true;
+            }
             return false;
         }
         
         public bool ArrConst2()
         {
-            if (ArrConst3())
-                return true;
-            else if (arr[i].clss == "CCB")
-                return true;
+            if (arr[i].clss == "OCB")
+            {
+                if (ArrConst3())
+                    return true;
+            }
+            else
+            {
+                if (arr[i].clss == "CCB")
+                    return true;
+            }
             return false;
         }
         public bool ArrConst3()
@@ -966,11 +1008,17 @@ namespace CC
         }
         public bool ArrConst4()
         {
-            if (ArrConst3())
-                return true;
-            
-            if (arr[i].clss == "CCB")
-                return true;
+            if (arr[i].clss == "COMMA")
+            {
+                i++;
+                if (ArrConst3())
+                    return true;
+            }
+            else
+            {
+                if (arr[i].clss == "CCB")
+                    return true;
+            }
             return false;
         }
         public bool Init2()
@@ -1552,7 +1600,7 @@ namespace CC
                     if (arr[i].clss == "ID")
                     {
                         i++;
-                        if (Assign())
+                        if (AllInit())
                             return true;
                     }
                 }
