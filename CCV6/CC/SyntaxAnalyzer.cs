@@ -1060,12 +1060,25 @@ namespace CC
         public bool WithStaticConst_DT()
         {
             if (Static_ST())
-                if (arr[i].clss == "CONST")
+                if (Const_ST2())
                 {
-                    i++;
                     if (WithDT())
                         return true;
                 }
+            return false;
+        }
+        public bool Const_ST2()
+        {
+            if (arr[i].clss == "CONST")
+            {
+                    i++;
+                    return true;
+            }
+            else
+            {
+                if (arr[i].clss == "DT" || arr[i].clss == "ID")
+                    return true;
+            }
             return false;
         }
         public bool SST()
@@ -1625,11 +1638,13 @@ namespace CC
         public bool AMList3()
         {
             if (AllInit())
+            {
                 if (arr[i].clss == "TERMINATOR")
                 {
                     i++;
                     return true;
                 }
+            }
             else if (Method())
                 return true;
             return false;
