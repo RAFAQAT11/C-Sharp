@@ -473,9 +473,9 @@ namespace CC
 
             return str;
         }
-        public string CountTabs()
+        public string CountTabs(int selection)
         {
-            int i = richTextBox1.SelectionStart;
+            int i = selection;
             int tabs = 0;
             string str = "";
             for (; i < richTextBox1.TextLength; i++)
@@ -492,33 +492,62 @@ namespace CC
 
         private void richTextBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == (char)'(' || e.KeyChar == (char)'[')
+            if (e.KeyChar == (char)'{' || e.KeyChar == (char)'[' || e.KeyChar == (char)'(')
             {
                 int i = richTextBox1.SelectionStart;
-                string[] text = NewStr(i, i-1);
+                string[] text = NewStr(i, i - 1);
                 string @Char = "";
                 if (e.KeyChar == (char)'(')
                     @Char = ")";
                 else if (e.KeyChar == (char)'[')
                     @Char = "]";
+                else if (e.KeyChar == (char)'{')
+                    @Char = "}";
                 richTextBox1.Text = text[0] + @Char + text[1];
                 richTextBox1.SelectionStart = i;
             }
-
             if (e.KeyChar == (char)Keys.Enter)
             {
                 int i = richTextBox1.SelectionStart;
-                if (i - 2 > 0 && richTextBox1.Text[i - 2] == '{')
+                if (i < richTextBox1.TextLength && richTextBox1.Text[i] == '}')
                 {
-                    string[] text = NewStr(i - 2, i - 1);
-                    string tabs = CountTabs();
-                    string str = "\n" + tabs + "{\n" + tabs + "\t";
+
+                    if (i - 2 > 0 && richTextBox1.Text[i - 2] == '{')
+                    {
+                        string[] text = NewStr(i - 2, i);
+                        string tabs = CountTabs(i + 1);
+                        string str = "\n" + tabs + "{\n" + tabs + "\t";
+                        int cursor = str.Length - 2;
+                        string str2 = "\n" + tabs + "}\n";
+
+                        richTextBox1.Text = text[0] + str + str2 + text[1];
+                        richTextBox1.SelectionStart = i + cursor;
+                    }
+                }
+                else
+                {
+                    string[] text = NewStr(i - 1, i - 1);
+                    string tabs = CountTabs(i);
+                    string str = "\n" + tabs + "\t";
                     int cursor = str.Length - 2;
-                    string str2 = "\n" + tabs + "}";
-                    richTextBox1.Text = text[0] + str + str2 + text[1];
+                    richTextBox1.Text = text[0] + str + text[1];
                     richTextBox1.SelectionStart = i + cursor;
                 }
+
             }
+        }
+        public int CountCB(int start, int end)
+        {
+            int op = 0;
+            string text = richTextBox1.Text;
+            for (; start < end; start++)
+            {
+                if (text[start] == '{')
+                    op++;
+                else if (text[start] == '}')
+                    op--;
+            }
+            return op;
         }
         //string NextWord()
         //{
