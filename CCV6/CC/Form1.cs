@@ -20,10 +20,44 @@ namespace CC
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            richTextBox4.Font = new Font(richTextBox1.Font.FontFamily, richTextBox1.Font.Size + 4.019f);
+            richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, richTextBox1.Font.Size + 4.019f);
             textBox1.ScrollBars = ScrollBars.Vertical;
-            richTextBox1.SelectionFont = new Font("courier", fontSize, FontStyle.Regular); 
-        }
+            //richTextBox1.SelectionFont = new Font("courier", fontSize, FontStyle.Regular);
+            //richTextBox4.SelectionFont = new Font("courier", fontSize, FontStyle.Regular);
 
+            //richTextBox.ScrollBars = textBox1.ScrollBars;
+            updateLineNumber();
+        }
+        int x = 242, y = 0;
+        private void updateLineNumber()
+        {
+            //we get index of first visible char and number of first visible line
+            Point pos = new Point(x, y);
+            int firstIndex = richTextBox1.GetCharIndexFromPosition(pos);
+            int firstLine = richTextBox1.GetLineFromCharIndex(firstIndex);
+            //LineNumberTextBox.Height = richTextBox1.Height;
+
+            //now we get index of last visible char and number of last visible line
+            pos.X = ClientRectangle.Width;
+            pos.Y = ClientRectangle.Height;
+            int lastIndex = richTextBox1.GetCharIndexFromPosition(pos);
+            int lastLine = richTextBox1.GetLineFromCharIndex(lastIndex);
+
+            //this is point position of last visible char, we'll use its Y value for calculating LineNumberTextBox size
+            pos = richTextBox1.GetPositionFromCharIndex(lastIndex);
+
+
+            //finally, renumber label
+            //if (richTextBox4.Text == "" && firstLine == 1)
+            //    firstLine = 0;
+            richTextBox4.Text = "";
+            for (int i = firstLine; i <= lastLine + 1; i++)
+            {
+                richTextBox4.Text += i + 1 + "\n";
+            }
+
+        }
 
         StorageStructure[] arr;
         int line = 1;
@@ -34,6 +68,7 @@ namespace CC
         {
             line = 1;
             textBox1.Text = "";
+            
             list = new MemoryStorage();
             text = richTextBox1.Text;
             for (int i = 0; i < text.Length; i++)
@@ -410,7 +445,80 @@ namespace CC
 
         private void button3_Click(object sender, EventArgs e)
         {
-            richTextBox1.SelectionFont = new Font("times", --fontSize, FontStyle.Bold);
+            //richTextBox1.SelectionFont = new Font("times", --fontSize, FontStyle.Bold);
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+            updateLineNumber();
+        }
+
+        private void richTextBox1_VScroll(object sender, EventArgs e)
+        {
+            int d = richTextBox1.GetPositionFromCharIndex(0).Y % (richTextBox1.Font.Height + 1);
+            richTextBox4.Location = new Point(x, d);
+            updateLineNumber();
+        }
+        public string[] NewStr(int start, int end)
+        {
+            string text = richTextBox1.Text;
+            string[] str = new string[2];
+            if (text.Length < 1)
+                return str;
+            for (int i = 0; i < start; i++)
+                str[0] += text[i];
+
+            for (int i = end + 1; i < text.Length; i++)
+                str[1] += text[i];
+
+            return str;
+        }
+        public string CountTabs()
+        {
+            int i = richTextBox1.SelectionStart;
+            int tabs = 0;
+            string str = "";
+            for (; i < richTextBox1.TextLength; i++)
+            {
+                if (richTextBox1.Text[i] == '{')
+                    tabs--;
+                else if (richTextBox1.Text[i] == '}')
+                    tabs++;
+            }
+            for (int j = 0; j < tabs; j++)
+                str += "\t";
+            return str;
+        }
+
+        private void richTextBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)'(' || e.KeyChar == (char)'[')
+            {
+                int i = richTextBox1.SelectionStart;
+                string[] text = NewStr(i, i-1);
+                string @Char = "";
+                if (e.KeyChar == (char)'(')
+                    @Char = ")";
+                else if (e.KeyChar == (char)'[')
+                    @Char = "]";
+                richTextBox1.Text = text[0] + @Char + text[1];
+                richTextBox1.SelectionStart = i;
+            }
+
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                int i = richTextBox1.SelectionStart;
+                if (i - 2 > 0 && richTextBox1.Text[i - 2] == '{')
+                {
+                    string[] text = NewStr(i - 2, i - 1);
+                    string tabs = CountTabs();
+                    string str = "\n" + tabs + "{\n" + tabs + "\t";
+                    int cursor = str.Length - 2;
+                    string str2 = "\n" + tabs + "}";
+                    richTextBox1.Text = text[0] + str + str2 + text[1];
+                    richTextBox1.SelectionStart = i + cursor;
+                }
+            }
         }
         //string NextWord()
         //{

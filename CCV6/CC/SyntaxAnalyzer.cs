@@ -1433,10 +1433,18 @@ namespace CC
         }
         public bool DT_Types()
         {
-            if (arr[i].clss == "DT" || arr[i].clss == "ID" )
+            if (arr[i].clss == "DT")
             {
                 i++;
                 if (DT2List())
+                    return true;
+            }
+            if (arr[i].clss == "ID")
+            {
+                i++;
+                if (Construct())
+                    return true;
+                else if (DT2List())
                     return true;
             }
             return false;
@@ -1449,8 +1457,11 @@ namespace CC
                 if (DT2List2())
                     return true;
             }
-            else if(arr[i].clss == "ID")
-                return true;
+            else
+            {
+                if (arr[i].clss == "ID")
+                    return true;
+            }
             return false;
         }
         public bool DT2List2()
@@ -1632,26 +1643,26 @@ namespace CC
                 return true;
             //if (Method())
             //    return true;
-            else if (WithDT())
-            {
-                if (arr[i].clss == "TERMINATOR")
-                {
-                    i++;
-                    return true;
-                }
-            }
-            else if (arr[i].clss == "ID")
-            {
-                i++;
-                if (DECList())
-                    if (arr[i].clss == "TERMINATOR")
-                    {
-                        i++;
-                        return true;
-                    }
-            }
-            else if (Construct())
-                return true;
+            //else if (WithDT())
+            //{
+            //    if (arr[i].clss == "TERMINATOR")
+            //    {
+            //        i++;
+            //        return true;
+            //    }
+            //}
+            //else if (arr[i].clss == "ID")
+            //{
+            //    i++;
+            //    if (DECList())
+            //        if (arr[i].clss == "TERMINATOR")
+            //        {
+            //            i++;
+            //            return true;
+            //        }
+            //}
+            //else if (Construct())
+            //    return true;
             else if (NBody())
                 return true;
             return false;
@@ -1664,12 +1675,8 @@ namespace CC
                 return true;
             else if(DT_Types())
             {
-                if (arr[i].clss == "ID")
-                {
-                    i++;
-                    if (AMList3())
-                        return true;
-                }
+                if (MF())
+                    return true;
             }
             else if (arr[i].clss == "VOID")
             {
@@ -1680,6 +1687,21 @@ namespace CC
                     if (Method())
                         return true;
                 }
+            }
+            return false;
+        }
+        public bool MF()
+        {
+            if (arr[i].clss == "ID")
+            {
+                i++;
+                if (AMList3())
+                    return true;
+            }
+            else
+            {
+                if (arr[i].clss == "CCB" || arr[i].clss == "AM" || arr[i].clss == "STATIC" || arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
+                    return true;
             }
             return false;
         }
@@ -1707,23 +1729,25 @@ namespace CC
         }
         public bool Construct()
         {
-            if (Static_ST())
+            if (arr[i].clss == "OSB")
             {
-                if (arr[i].clss == "ID")
-                {
-                    i++;
-                    if (arr[i].clss == "OSB")
+                i++;
+                if (Args())
+                    if (arr[i].clss == "CSB")
                     {
                         i++;
-                        if (Args())
-                            if (arr[i].clss == "CSB")
-                            {
-                                i++;
-                                if (Body())
+                        if (arr[i].clss == "OCB")
+                        {
+                            i++;
+                            if(MST())
+                                if (arr[i].clss == "CCB")
+                                {
+                                    i++;
                                     return true;
-                            }
+                                }
+                        }
+                        
                     }
-                }
             }
             return false;
         }
