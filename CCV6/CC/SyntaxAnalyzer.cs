@@ -1194,7 +1194,11 @@ namespace CC
                 {
                     i++;
                     if(WithID())
-                        return true;
+                        if (arr[i].clss == "TERMINATOR")
+                        {
+                            i++;
+                            return true;
+                        }
                 }
             }
             
