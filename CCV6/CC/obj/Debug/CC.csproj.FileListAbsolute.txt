@@ -98,3 +98,12 @@ C:\Users\this\Documents\Visual Studio 2013\Projects\CCV6\CC\obj\Debug\CC.csprojR
 C:\Users\this\Documents\Visual Studio 2013\Projects\CCV6\CC\obj\Debug\CC.Form1.resources
 C:\Users\this\Documents\Visual Studio 2013\Projects\CCV6\CC\obj\Debug\CC.Properties.Resources.resources
 C:\Users\this\Documents\Visual Studio 2013\Projects\CCV6\CC\obj\Debug\CC.csproj.GenerateResource.Cache
+D:\CCV6\CC\bin\Debug\CC.exe.config
+D:\CCV6\CC\obj\Debug\CC.exe
+D:\CCV6\CC\obj\Debug\CC.pdb
+D:\CCV6\CC\bin\Debug\CC.exe
+D:\CCV6\CC\bin\Debug\CC.pdb
+D:\CCV6\CC\obj\Debug\CC.csprojResolveAssemblyReference.cache
+D:\CCV6\CC\obj\Debug\CC.Form1.resources
+D:\CCV6\CC\obj\Debug\CC.Properties.Resources.resources
+D:\CCV6\CC\obj\Debug\CC.csproj.GenerateResource.Cache
