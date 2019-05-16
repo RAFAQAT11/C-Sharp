@@ -23,6 +23,8 @@ namespace CC
             richTextBox4.Font = new Font(richTextBox1.Font.FontFamily, richTextBox1.Font.Size + 4.019f);
             richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, richTextBox1.Font.Size + 4.019f);
             textBox1.ScrollBars = ScrollBars.Vertical;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             //richTextBox1.SelectionFont = new Font("courier", fontSize, FontStyle.Regular);
             //richTextBox4.SelectionFont = new Font("courier", fontSize, FontStyle.Regular);
 
@@ -394,6 +396,7 @@ namespace CC
                     }
             }
             richTextBox2.Text = "";
+            richTextBox5.Text = "";
             list.Add("$",line.ToString());
             list.GetList().ForEach(data => richTextBox2.Text += data + "\n");
 
@@ -430,10 +433,10 @@ namespace CC
             else
                 return 10;
         }
-
+        SyntaxAnalyzer syntax;
         private void button2_Click(object sender, EventArgs e)
         {
-            SyntaxAnalyzer syntax = new SyntaxAnalyzer(arr);
+            syntax = new SyntaxAnalyzer(arr,richTextBox5,dataGridView1);
             bool ret = syntax.Namespace_ST();
             bool result = arr[syntax.i].clss == "END" ? true : false;
             if (ret && result)
@@ -549,6 +552,31 @@ namespace CC
             }
             return op;
         }
+        int dataSetI = 0;
+        private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+        
+        private void button4_Click(object sender, EventArgs e)
+        {
+            DataSet ds = syntax.GetDataSet();
+            if (dataSetI > 0)
+                dataSetI--;
+            label4.Text = ds.Tables[dataSetI].TableName.ToString();
+            dataGridView2.DataSource = ds.Tables[dataSetI];
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            DataSet ds = syntax.GetDataSet();
+            if (dataSetI < ds.Tables.Count-1)
+                dataSetI++;
+            label4.Text = ds.Tables[dataSetI].TableName.ToString();
+            dataGridView2.DataSource = ds.Tables[dataSetI];
+        }
+
+        
         //string NextWord()
         //{
         //    string temp = "";
