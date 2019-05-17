@@ -102,9 +102,9 @@ namespace CC
             {
                 if (dt.Rows[i]["Name"].ToString() == name)
                 {
-                    type = classTable.Rows[i]["Type"].ToString();
-                    AM = classTable.Rows[i]["AM"].ToString();
-                    TM = classTable.Rows[i]["TM"].ToString();
+                    type = dt.Rows[i]["Type"].ToString();
+                    AM = dt.Rows[i]["AM"].ToString();
+                    TM = dt.Rows[i]["TM"].ToString();
                     break;
                 }
             }
@@ -150,6 +150,24 @@ namespace CC
         {
             
             return CCTs;
+        }
+        public bool IsExistClass(string name)
+        {
+            for (int i = 0; i < classTable.Rows.Count; i++)
+            {
+                if (name == classTable.Rows[i]["Name"].ToString())
+                    return true;
+            }
+            return false;
+        }
+        public string WhatIsClassName(string name)
+        {
+            for (int i = 0; i < classTable.Rows.Count; i++)
+            {
+                if (name == classTable.Rows[i]["Ref"].ToString())
+                    return classTable.Rows[i]["Name"].ToString();
+            }
+            return "Not found.";
         }
     }
 }

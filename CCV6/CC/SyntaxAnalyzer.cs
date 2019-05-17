@@ -15,6 +15,8 @@ namespace CC
         public Symentic symentic = new Symentic();
         RichTextBox rtb5;
         DataGridView dgv;
+        string args = "";
+
         public SyntaxAnalyzer(StorageStructure[] arr,RichTextBox rtb5,DataGridView dgv)
         {
             this.dgv = dgv;
@@ -1144,26 +1146,33 @@ namespace CC
         //    return false;
         //}
 
-        public bool WithDT()
+        public bool WithDT(out string arg)
         {
+            arg = "";
+            string isdim = "";
             if (arr[i].clss == "DT")
             {
+                arg = arr[i].word;
                 i++;
-                if (DTList())
+                if (DTList(out isdim))
+                {
+                    arg += isdim;
                     return true;
+                }
             }
             return false;
         }
         //public static virtual int abc() { return 1; }
-        public bool DTList()
+        public bool DTList(out string isdim)
         {
+            isdim = "";
             if (arr[i].clss == "ID")
             {
                 i++;
                 if (AllInit())
                     return true;
             }
-            else if (Arr5())
+            else if (Arr5(out isdim))
                 return true;
             return false;
         }
@@ -1193,7 +1202,7 @@ namespace CC
                     if (arr[i].clss == "ID")
                     {
                         name = arr[i].word;
-                        symentic.Insert_CT(name, DT, AM, TM, isConst, CT);
+                        this.TypeIfExistThenInsert(name, DT, AM, TM, isConst, CT);
                         i++;
                         if(AllInit())
                             if (arr[i].clss == "TERMINATOR")
@@ -1209,11 +1218,12 @@ namespace CC
         }
         public bool WithStaticConst_DT()
         {
+            string DT;
             string TM;
             if (Static_ST(out TM))
                 if (Const_ST2())
                 {
-                    if (WithDT())
+                    if (WithDT(out DT))
                         return true;
                 }
             return false;
@@ -1348,9 +1358,10 @@ namespace CC
         }
         public bool C1()
         {
+            string dt;
             if (OE2())
                 return true;
-            else if (WithDT())
+            else if (WithDT(out dt))
                 return true;
             //else if (WithID())
             //    return true;
@@ -1476,7 +1487,7 @@ namespace CC
                 return true;
             return false;
         }
-        public bool Method()
+        public bool Method(string name,string AM,string TM,string DT,DataTable CT)
         {
             if (arr[i].clss == "OSB")
             {
@@ -1485,6 +1496,8 @@ namespace CC
                     if (arr[i].clss == "CSB")
                     {
                         i++;
+                        InsertCT(name, (args==""?"void":args) + ">" + DT, AM, TM, false, CT);
+                        args = "";
                         if (Super_Class())
                             if (arr[i].clss == "OCB")
                             {
@@ -1500,39 +1513,42 @@ namespace CC
             }               
             return false;
         }
-        public bool VO()
+        public bool VO(string AM,string TM,DataTable CT)
         {
             if (arr[i].clss == "VO")
             {
                 i++;
-                if(VOList())
+                if(VOList(AM,TM,CT))
                     return true;
             }
             //else if (arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "DT")
             //    return true;
             return false;
         }
-        public bool VOList()
+        public bool VOList(string AM, string TM, DataTable CT)
         {
-            string TM;
+            string DT="None";
             if (arr[i].clss == "DT" || arr[i].clss == "VOID")
             {
-                if(DT_Types(out TM))
+                if(DT_Types(AM,TM,out DT,CT))
                 {
                     if (arr[i].clss == "ID")
                     {
+                        string name = arr[i].word;
                         i++;
-                        if (Method())
+                        if (Method(name,AM,TM,DT,CT))
                             return true;
                     }
                 }
                 else if (arr[i].clss == "VOID")
                 {
+                    DT = arr[i].word;
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        string name = arr[i].word;
                         i++;
-                        if (Method())
+                        if (Method(name,AM,TM,DT,CT))
                             return true;
                     }
                 }
@@ -1565,24 +1581,39 @@ namespace CC
             }
             return false;
         }
-        public bool DT_Types(out string DT)
+        public bool DT_Types(string AM,string TM, out string DT,DataTable CT)
         {
-            string isDimentinal;
+            string isDimentinal="";
             DT = "";
             if (arr[i].clss == "DT")
             {
                 DT = arr[i].word;
                 i++;
                 if (DT2List(out isDimentinal))
+                {
+                    DT += isDimentinal;
                     return true;
+                }
             }
             if (arr[i].clss == "ID")
             {
+                string name = arr[i].word;
+                DT = arr[i].word;
                 i++;
-                if (Construct())
-                    return true;
-                else if (DT2List(out isDimentinal))
-                    return true;
+                if (arr[i].clss == "OSB")
+                {
+                    IsConstructNameRight(name,"None",AM,TM,false,CT);
+                    if (Construct())
+                        return true;
+                }
+                else if (arr[i].clss == "OLB")
+                {
+                    if (DT2List(out isDimentinal))
+                    {
+                        DT += isDimentinal;
+                        return true;
+                    }
+                }
             }
             return false;
         }
@@ -1670,7 +1701,6 @@ namespace CC
                 return true;
             return false;
         }
-        
         public bool Args()
         {
             if (arr[i].clss == "DT" || arr[i].clss == "ID")
@@ -1687,17 +1717,24 @@ namespace CC
         }
         public bool ArgsList()
         {
-            if (WithDT())
+            string arg = "";
+            if (WithDT(out arg))
             {
+                args += arg;
                 if (Args_ST())
                     return true;
             }
             else if (arr[i].clss == "ID")
             {
+                arg = arr[i].word;
                 i++;
-                if (ID3_ST())
+                string isdim="";
+                if (ID3_ST(out isdim))
+                {
+                    args += arg + isdim;
                     if (Args_ST())
                         return true;
+                }
             }
             return false;
         }
@@ -1705,6 +1742,7 @@ namespace CC
         {
             if (arr[i].clss == "COMMA")
             {
+                args += ",";
                 i++;
                 if (Args())
                     return true;
@@ -1713,28 +1751,32 @@ namespace CC
                 return true;
             return false;
         }
-        public bool ID3_ST()
+        public bool ID3_ST(out string isdim)
         {
+            isdim = "";
             if (OBJ())
                 return true;
-            else if (Arr5())
+            else if (Arr5(out isdim))
                 return true;
             return false;
         }
-        public bool Arr5()
+        public bool Arr5(out string isdim)
         {
+            isdim = "";
             if (arr[i].clss == "OLB")
             {
                 i++;
-                if (Arr5List())
+                if (Arr5List(out isdim))
                     return true;
             }
             return false;
         }
-        public bool Arr5List()
+        public bool Arr5List(out string isdim)
         {
+            isdim = "";
             if (arr[i].clss == "CLB")
             {
+                isdim = "1D";
                 i++;
                 if (arr[i].clss == "ID")
                 {
@@ -1745,6 +1787,7 @@ namespace CC
             }
             else if (arr[i].clss == "COMMA")
             {
+                isdim = "2D";
                 i++;
                 if (arr[i].clss == "CLB")
                 {
@@ -1761,11 +1804,36 @@ namespace CC
         }
         public bool WithAM(DataTable CT)
         {
-            string AM, TM;
+            string AM;
             if (AM_ST(out AM))
-                if(Static_ST(out TM))
-                    if (AMList(AM,TM,CT))
-                        return true;
+                if (StaticOrVO(AM, CT))
+                    return true;
+                //if(Static_ST(out TM))
+                //    if (AMList(AM,TM,CT))
+                //        return true;
+            return false;
+        }
+        public bool StaticOrVO(string AM,DataTable CT)
+        {
+            string TM = "None";
+            if (arr[i].clss == "STATIC")
+            {
+                TM = arr[i].word;
+                i++;
+                if (AMList(AM, TM, CT))
+                    return true;
+            }
+            else if (arr[i].clss == "VO")
+            {
+                TM = arr[i].word;
+                if (VO(AM,TM,CT))
+                    return true;
+            }
+            else if (arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "CONST")
+            {
+                if (AMList(AM, TM, CT))
+                    return true;
+            }
             return false;
         }
         public bool AM_ST(out string AM)
@@ -1777,7 +1845,7 @@ namespace CC
                 i++;
                 return true;
             }
-            else if (arr[i].clss == "STATIC" || arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "OLB" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
+            else if (arr[i].clss == "CONST" || arr[i].clss == "STATIC" || arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "OLB" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
                 return true;
             return false;
         }
@@ -1814,33 +1882,36 @@ namespace CC
         public bool AMList2(string AM, string TM,DataTable CT)
         {
             string DT;
-            if (VO())
+            //if (VO())
+            //    return true;
+            if (Const_ST(AM,TM,CT))
                 return true;
-            else if (Const_ST(AM,TM,CT))
-                return true;
-            else if(DT_Types(out DT))
+            else if(DT_Types(AM,TM,out DT,CT))
             {
-                if (MF())
+                if (MF(AM,TM,DT,CT))
                     return true;
             }
             else if (arr[i].clss == "VOID")
             {
+                DT = arr[i].word;
                 i++;
                 if (arr[i].clss == "ID")
                 {
+                    string name = arr[i].word;
                     i++;
-                    if (Method())
+                    if (Method(name,AM,TM,DT,CT))
                         return true;
                 }
             }
             return false;
         }
-        public bool MF()
+        public bool MF(string AM,string TM,string DT,DataTable CT)
         {
             if (arr[i].clss == "ID")
             {
+                string name = arr[i].word;
                 i++;
-                if (AMList3())
+                if (AMList3(name, DT, AM, TM, false, CT))
                     return true;
             }
             else
@@ -1850,25 +1921,33 @@ namespace CC
             }
             return false;
         }
-        public bool AMList3()
+        public bool AMList3(string name,string DT,string AM,string TM,bool isConst,DataTable CT)
         {
-            if (AllInit())
+            if (arr[i].clss == "ASSIGN-OPT" || arr[i].clss == "TERMINATOR")
             {
-                if (arr[i].clss == "TERMINATOR")
+                this.TypeIfExistThenInsert(name, DT, AM, TM, isConst, CT);
+                if (AllInit())
                 {
-                    i++;
-                    return true;
+                    if (arr[i].clss == "TERMINATOR")
+                    {
+                        i++;
+                        return true;
+                    }
                 }
             }
-            else if (Method())
-                return true;
+            else if (arr[i].clss == "OSB")
+            {
+                if (Method(name, AM, TM,DT,CT))
+                    return true;
+            }
             return false;
         }
         public bool DECList()
         {
+            string isdim;
             if (OBJ())
                 return true;
-            else if (Arr5())
+            else if (Arr5(out isdim))
                 return true;
             return false;
         }
@@ -1911,7 +1990,7 @@ namespace CC
                         name = arr[i].word;
                         i++;
                         if (Inherit_ST(out parent))
-                            Error01(name, type, cat, parent, CT);
+                            Insert(name, type, cat, parent, CT);
                             if (arr[i].clss == "OCB")
                             {
                                 i++;
@@ -1961,7 +2040,7 @@ namespace CC
         }
         public bool ClassList(DataTable CT)
         {
-            if(arr[i].clss == "AM" || arr[i].clss == "STATIC" || arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
+            if(arr[i].clss == "CONST" || arr[i].clss == "AM" || arr[i].clss == "STATIC" || arr[i].clss == "VO" || arr[i].clss == "DT" || arr[i].clss == "VOID" || arr[i].clss == "ID" || arr[i].clss == "ABSTRACT" || arr[i].clss == "CLASS" || arr[i].clss == "INTERFACE")
             {
                 if (WithAM(CT))
                 {
@@ -1979,7 +2058,7 @@ namespace CC
         public bool INTMethod()
         {
             string DT;
-            if(arr[i].clss == "VOID" || DT_Types(out DT))
+            if(arr[i].clss == "VOID" || DT_Types("","",out DT,new DataTable()))
                 if (arr[i].clss == "ID")
                 {
                     i++;
@@ -2477,9 +2556,16 @@ namespace CC
         //===================================================================================================================================
 
 
-        public void Error01(string name, string type, string cat, string parent, DataTable CT)
+        public void Insert(string name, string type, string cat, string parent, DataTable CT)
         {
             if (!symentic.Insert(name, type, cat, parent, CT))
+            {
+                InsertError("Already Decleared");
+            }
+        }
+        public void InsertCT(string name, string DT, string AM, string TM,bool isConst, DataTable CT)
+        {
+            if (!symentic.Insert_CT(name, DT, AM, TM, isConst, CT))
             {
                 InsertError("Already Decleared");
             }
@@ -2490,6 +2576,18 @@ namespace CC
             symentic.Lookup(name, out type, out catagory, out parent);
             if (type != "CLASS")
                 InsertError(name+" is not decleared");
+        }
+        public void TypeIfExistThenInsert(string name,string type,string AM,string TM,bool isConst, DataTable dt)
+        {
+            if (symentic.IsExistClass(type) || type == "int" || type == "float" || type == "char" || type == "string" || type == "int1D" || type == "float1D" || type == "char1D" || type == "string1D" || type == "int2D" || type == "float2D" || type == "char2D" || type == "string2D")
+                symentic.Insert_CT(name, type, AM, TM, isConst, dt);
+            else InsertError("Type Does not exist");
+        }
+        public void IsConstructNameRight(string name,string type,string AM,string TM,bool isConst, DataTable dt)
+        {
+            if (name == symentic.WhatIsClassName(dt.TableName.ToString()))
+                symentic.Insert_CT(name, type, AM, TM, isConst, dt);
+            else InsertError("Constructor Name does not Match");
         }
         public void InsertError(string Err)
         {

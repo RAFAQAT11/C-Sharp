@@ -107,3 +107,12 @@ D:\CCV6\CC\obj\Debug\CC.csprojResolveAssemblyReference.cache
 D:\CCV6\CC\obj\Debug\CC.Form1.resources
 D:\CCV6\CC\obj\Debug\CC.Properties.Resources.resources
 D:\CCV6\CC\obj\Debug\CC.csproj.GenerateResource.Cache
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\bin\Debug\CC.exe.config
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\bin\Debug\CC.exe
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\bin\Debug\CC.pdb
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\obj\Debug\CC.Form1.resources
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\obj\Debug\CC.Properties.Resources.resources
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\obj\Debug\CC.csproj.GenerateResource.Cache
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\obj\Debug\CC.exe
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\obj\Debug\CC.pdb
+C:\Users\PM-Nawaz\Desktop\CCV6\CC\obj\Debug\CC.csprojResolveAssemblyReference.cache
