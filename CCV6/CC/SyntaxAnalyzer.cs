@@ -1491,6 +1491,7 @@ namespace CC
         {
             if (arr[i].clss == "OSB")
             {
+                DataTypeCheck(DT);
                 i++;
                 if (Args())
                     if (arr[i].clss == "CSB")
@@ -1602,8 +1603,7 @@ namespace CC
                 i++;
                 if (arr[i].clss == "OSB")
                 {
-                    IsConstructNameRight(name,"None",AM,TM,false,CT);
-                    if (Construct())
+                    if (Construct(name, AM, TM, false, CT))
                         return true;
                 }
                 else if (arr[i].clss == "OLB")
@@ -1720,6 +1720,7 @@ namespace CC
             string arg = "";
             if (WithDT(out arg))
             {
+                DataTypeCheck(arg);
                 args += arg;
                 if (Args_ST())
                     return true;
@@ -1731,6 +1732,7 @@ namespace CC
                 string isdim="";
                 if (ID3_ST(out isdim))
                 {
+                    DataTypeCheck(arg + isdim);
                     args += arg + isdim;
                     if (Args_ST())
                         return true;
@@ -1951,7 +1953,7 @@ namespace CC
                 return true;
             return false;
         }
-        public bool Construct()
+        public bool Construct(string name,string AM, string TM,bool isConst,DataTable CT)
         {
             if (arr[i].clss == "OSB")
             {
@@ -1959,6 +1961,8 @@ namespace CC
                 if (Args())
                     if (arr[i].clss == "CSB")
                     {
+                        IfConstructNameRightThenInsert(name, (args == "" ? "void" : args + ">" + "void"), AM, TM, isConst, CT);
+                        args = "";
                         i++;
                         if (arr[i].clss == "OCB")
                         {
@@ -2559,16 +2563,12 @@ namespace CC
         public void Insert(string name, string type, string cat, string parent, DataTable CT)
         {
             if (!symentic.Insert(name, type, cat, parent, CT))
-            {
                 InsertError("Already Decleared");
-            }
         }
         public void InsertCT(string name, string DT, string AM, string TM,bool isConst, DataTable CT)
         {
             if (!symentic.Insert_CT(name, DT, AM, TM, isConst, CT))
-            {
-                InsertError("Already Decleared");
-            }
+                InsertError("Already Decleared");   
         }
         public void InheritTypeCheck(string name)
         {
@@ -2577,16 +2577,22 @@ namespace CC
             if (type != "CLASS")
                 InsertError(name+" is not decleared");
         }
+        public bool DataTypeCheck(string type)
+        {
+            if (symentic.IsExistClass(type) || type == "void" || type == "int" || type == "float" || type == "char" || type == "string" || type == "int1D" || type == "float1D" || type == "char1D" || type == "string1D" || type == "int2D" || type == "float2D" || type == "char2D" || type == "string2D")
+                return true;
+            InsertError("Type '"+type+"' Does't exist");
+            return false;
+        }
         public void TypeIfExistThenInsert(string name,string type,string AM,string TM,bool isConst, DataTable dt)
         {
-            if (symentic.IsExistClass(type) || type == "int" || type == "float" || type == "char" || type == "string" || type == "int1D" || type == "float1D" || type == "char1D" || type == "string1D" || type == "int2D" || type == "float2D" || type == "char2D" || type == "string2D")
-                symentic.Insert_CT(name, type, AM, TM, isConst, dt);
-            else InsertError("Type Does not exist");
+            if (DataTypeCheck(type))
+                InsertCT(name, type, AM, TM, isConst, dt);
         }
-        public void IsConstructNameRight(string name,string type,string AM,string TM,bool isConst, DataTable dt)
+        public void IfConstructNameRightThenInsert(string name,string type,string AM,string TM,bool isConst, DataTable dt)
         {
             if (name == symentic.WhatIsClassName(dt.TableName.ToString()))
-                symentic.Insert_CT(name, type, AM, TM, isConst, dt);
+                InsertCT(name, type, AM, TM, isConst, dt);
             else InsertError("Constructor Name does not Match");
         }
         public void InsertError(string Err)
