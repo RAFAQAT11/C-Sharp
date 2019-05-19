@@ -25,6 +25,7 @@ namespace CC
             textBox1.ScrollBars = ScrollBars.Vertical;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView3.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             //richTextBox1.SelectionFont = new Font("courier", fontSize, FontStyle.Regular);
             //richTextBox4.SelectionFont = new Font("courier", fontSize, FontStyle.Regular);
 
@@ -436,7 +437,7 @@ namespace CC
         SyntaxAnalyzer syntax;
         private void button2_Click(object sender, EventArgs e)
         {
-            syntax = new SyntaxAnalyzer(arr,richTextBox5,dataGridView1);
+            syntax = new SyntaxAnalyzer(arr,richTextBox5,dataGridView1,dataGridView3);
             bool ret = syntax.Namespace_ST();
             bool result = arr[syntax.i].clss == "END" ? true : false;
             if (ret && result)

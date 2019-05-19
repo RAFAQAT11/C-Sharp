@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Test
+namespace CC
 {
-    class StackX
+    public class StackX
     {
         int uniqueScope = 1;
         List<int> list = new List<int>();
@@ -27,7 +27,7 @@ namespace Test
         }
         public int Peek()
         {
-            return list.Count > 0 ? list.ElementAt(list.Count) : 0;
+            return list.Count > 0 ? list.ElementAt(list.Count-1) : 0;
         }
         public int[] GetArr()
         {

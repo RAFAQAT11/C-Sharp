@@ -13,6 +13,7 @@ namespace CC
         DataTable classTable;
         DataTable funcTable;
         int tNo = 0;
+
         public Symentic()
         {
             Init();
@@ -86,13 +87,18 @@ namespace CC
         }
         public bool Insert_CT(string name, string type, string AM, string TM,bool isConst, DataTable dt)
         {
-            string type2, AM2, TM2;
-            Lookup_CT(name, out type2, out AM2, out TM2,dt);
-            if (type2 == "" || type2 != type)
+            if(Lookup_CT(name,type,dt))
             {
-                dt.Rows.Add(name, type, AM, TM,isConst);
+                dt.Rows.Add(name, type, AM, TM, isConst);
                 return true;
             } return false;
+            //string type2, AM2, TM2;
+            //Lookup_CT(name, out type2, out AM2, out TM2,dt);
+            //if (type2 == "" || type2 != type)
+            //{
+            //    dt.Rows.Add(name, type, AM, TM,isConst);
+            //    return true;
+            //} return false;
 
         }
         public void Lookup_CT(string name, out string type, out string AM, out string TM,DataTable dt)
@@ -109,27 +115,51 @@ namespace CC
                 }
             }
         }
-        public bool Insert_FT(string name, string type, int scope,string className)
+        public bool Insert_FT(string name, string type, int scope)
         {
-            string type2;
-            Lookup_FT(name,new int[]{1,2,3,4},className, out type2);
-            if (type2 == "")
+            if (Lookup_FT(name,scope))
             {
                 funcTable.Rows.Add(name, type, scope);
                 return true;
             } return false;
         }
-        public void Lookup_FT(string name, int[] arr, string className, out string type)
+        public bool Lookup_FT(string name, int currScope)
+        {
+            for (int i = 0; i < funcTable.Rows.Count; i++)
+            {
+                if (funcTable.Rows[i]["Name"].ToString() == name)
+                    if (funcTable.Rows[i]["Scope"].ToString() == currScope.ToString())
+                        return false;
+            }
+            return true;
+        }
+        public bool Lookup_FT(string name, int[] arr, DataTable CT , out string type)
         {
             type = "";
             for (int i = 0; i < funcTable.Rows.Count; i++)
             {
-                if (funcTable.Rows[i]["name"].ToString() == name)
+                if (funcTable.Rows[i]["Name"].ToString() == name)
                 {
-                    type = classTable.Rows[i]["Type"].ToString();
-                    break;
+                    for (int j = 0; j < arr.Length; j++)
+                    {
+                        if (funcTable.Rows[i]["Scope"].ToString() == arr[j].ToString())
+                        {
+                            type = classTable.Rows[i]["Type"].ToString();
+                            return true;
+                        }
+                    }
                 }
             }
+
+            for (int ii = 0; ii < CT.Rows.Count; ii++)
+            {
+                if(CT.Rows[ii]["Name"].ToString()==name)
+                {
+                    type = classTable.Rows[ii]["Type"].ToString();
+                    return true;
+                }
+            }
+            return false;
         }
         public DataTable GetTableData1()
         {
@@ -148,8 +178,11 @@ namespace CC
         }
         public DataSet GetDataSet()
         {
-            
             return CCTs;
+        }
+        public DataTable GetFT()
+        {
+            return funcTable;
         }
         public bool IsExistClass(string name)
         {
@@ -168,6 +201,25 @@ namespace CC
                     return classTable.Rows[i]["Name"].ToString();
             }
             return "Not found.";
+        }
+        public bool Lookup_CT(string name, string type, DataTable dt)
+        {
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+
+                if (dt.Rows[i]["Name"].ToString() == name)
+                {
+                    if (dt.Rows[i]["Type"].ToString().Contains('>') && type.Contains('>'))
+                    {
+                        if (dt.Rows[i]["Type"].ToString().Substring(0, type.IndexOf('>')) == type.Substring(0, type.IndexOf('>')))
+                            return false;
+                    }
+                    else if (dt.Rows[i]["Type"].ToString() == type)
+                        return false;
+                    
+                }
+            }
+            return true;
         }
     }
 }
