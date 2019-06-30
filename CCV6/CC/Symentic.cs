@@ -60,8 +60,8 @@ namespace CC
         }
         public bool Insert(string name,string type, string catagory, string parent, DataTable dt)
         {
-            string type2, catagory2, parent2;
-            Lookup(name,out type2,out catagory2,out parent2);
+            string type2, catagory2, parent2,table;
+            Lookup(name,out type2,out catagory2,out parent2,out table);
             if (type2 == "")
             {
                 classTable.Rows.Add(name,type,catagory,parent,dt.TableName.ToString());
@@ -69,11 +69,12 @@ namespace CC
             } return false;
 
         }
-        public void Lookup(string name, out string type, out string catagory,out string parent)
+        public bool Lookup(string name, out string type, out string catagory,out string parent, out string table)
         {
             type = "";
             catagory = "";
             parent = "";
+            table = "";
             for (int i = 0; i < classTable.Rows.Count; i++)
             {
                 if (classTable.Rows[i]["Name"].ToString() == name)
@@ -81,9 +82,11 @@ namespace CC
                     type = classTable.Rows[i]["Type"].ToString();
                     catagory = classTable.Rows[i]["Catagory"].ToString();
                     parent = classTable.Rows[i]["Parent"].ToString();
-                    break;
+                    table = classTable.Rows[i]["Ref"].ToString();
+                    return true;
                 }
             }
+            return false;
         }
         public bool Insert_CT(string name, string type, string AM, string TM,bool isConst, DataTable dt)
         {
@@ -136,7 +139,7 @@ namespace CC
         public bool Lookup_FT(string name, int[] arr, DataTable CT , out string type)
         {
             type = "";
-            for (int i = 0; i < funcTable.Rows.Count; i++)
+            for (int i = funcTable.Rows.Count-1; i >= 0; i--)
             {
                 if (funcTable.Rows[i]["Name"].ToString() == name)
                 {
@@ -144,7 +147,7 @@ namespace CC
                     {
                         if (funcTable.Rows[i]["Scope"].ToString() == arr[j].ToString())
                         {
-                            type = classTable.Rows[i]["Type"].ToString();
+                            type = funcTable.Rows[i]["Type"].ToString();
                             return true;
                         }
                     }
@@ -155,7 +158,7 @@ namespace CC
             {
                 if(CT.Rows[ii]["Name"].ToString()==name)
                 {
-                    type = classTable.Rows[ii]["Type"].ToString();
+                    type = CT.Rows[ii]["Type"].ToString();
                     return true;
                 }
             }
@@ -221,5 +224,12 @@ namespace CC
             }
             return true;
         }
+        //public string GETOBJReturnType(string CName, string name, string param = "")
+        //{
+        //    for (int i = 0; i < CCTs.Tables.Count; i++)
+        //    {
+
+        //    }
+        //}
     }
 }
