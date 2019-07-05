@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CC
 {
@@ -224,12 +226,164 @@ namespace CC
             }
             return true;
         }
-        //public string GETOBJReturnType(string CName, string name, string param = "")
-        //{
-        //    for (int i = 0; i < CCTs.Tables.Count; i++)
-        //    {
+        public string GETRef(string cName)
+        {
+            for (int i = 0; i < classTable.Rows.Count; i++)
+            {
+                if (classTable.Rows[i]["Name"].ToString() == cName)
+                    return classTable.Rows[i]["Parent"].ToString();
+            }
+            return "ERROR";
+        }
+        public string GETClassNameFromTableName(string tableName)
+        {
+            for (int i = 0; i < classTable.Rows.Count; i++)
+            {
+                if (classTable.Rows[i]["Ref"].ToString() == tableName)
+                    return classTable.Rows[i]["Name"].ToString();
+            }
+            return "ERROR";
+        }
+        public string GETOBJReturnType(string cName, string name, string param = "")
+        {
+            for (int i = 0; i < classTable.Rows.Count; i++)
+            {
+                if (classTable.Rows[i]["Name"].ToString() == cName)
+                {
+                    for (int j = 0; j < CCTs.Tables.Count; j++)
+                    {
+                        if (CCTs.Tables[j].TableName.ToString() == classTable.Rows[i]["Ref"].ToString())
+                        {
+                            for (int k = 0; k < CCTs.Tables[j].Rows.Count; k++)
+                            {
+                                if (name == CCTs.Tables[j].Rows[k]["Name"].ToString() && CCTs.Tables[j].Rows[k]["AM"].ToString() == "public")
+                                {
+                                    if (param != "")
+                                    {
+                                        string prms = CCTs.Tables[j].Rows[k]["Type"].ToString();
+                                        if (param == prms.Substring(0,prms.IndexOf(">")))
+                                        {
+                                            return prms.Substring(prms.IndexOf(">")+1);
+                                        }
+                                    }
+                                    if(param == "")
+                                        return CCTs.Tables[j].Rows[k]["Type"].ToString();
+                                }
+                            }
+                            return "false";
+                        }
+                    }
+                }
+            }
+            return "false";
+        }
+        public string CheckOBJReturnType(string cName, string name, string param = "")
+        {
+            for (int i = 0; i < classTable.Rows.Count; i++)
+            {
+                if (classTable.Rows[i]["Name"].ToString() == cName)
+                {
+                    for (int j = 0; j < CCTs.Tables.Count; j++)
+                    {
+                        if (CCTs.Tables[j].TableName.ToString() == classTable.Rows[i]["Ref"].ToString())
+                        {
+                            for (int k = 0; k < CCTs.Tables[j].Rows.Count; k++)
+                            {
+                                if (name == CCTs.Tables[j].Rows[k]["Name"].ToString())
+                                {
+                                    if (param != "")
+                                    {
+                                        string prms = CCTs.Tables[j].Rows[k]["Type"].ToString();
+                                        if (param == prms.Substring(0, prms.IndexOf(">")))
+                                        {
+                                            return prms.Substring(prms.IndexOf(">") + 1);
+                                        }
+                                    }
+                                    if (param == "")
+                                        return CCTs.Tables[j].Rows[k]["Type"].ToString();
+                                }
+                            }
+                            return "false";
+                        }
+                    }
+                }
+            }
+            return "false";
+        }
+        public bool VerifyVO(string cName,string AM,string TM,string retType,string fName)
+        {
+            for (int i = 0; i < classTable.Rows.Count; i++)
+            {
+                if (classTable.Rows[i]["Name"].ToString() == cName)
+                {
+                    for (int j = 0; j < CCTs.Tables.Count; j++)
+                    {
+                        if (CCTs.Tables[j].TableName.ToString() == classTable.Rows[i]["Ref"].ToString())
+                        {
+                            for (int k = 0; k < CCTs.Tables[j].Rows.Count; k++)
+                            {
+                                if (CCTs.Tables[j].Rows[k]["AM"].ToString() == AM && CCTs.Tables[j].Rows[k]["TM"].ToString() == TM && CCTs.Tables[j].Rows[k]["Type"].ToString() == retType && CCTs.Tables[j].Rows[k]["Name"].ToString() == fName)
+                                    return true;
+                            }
+                            return false;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        public DataTable GETDataTable(string tableName)
+        {
+            for (int i = 0; i < CCTs.Tables.Count; i++)
+            {
+                if (CCTs.Tables[i].TableName == tableName)
+                    return CCTs.Tables[i];
+            }
+            return new DataTable("NULL");
+        }
+        public string CheckClassInheritToInterface(string interf, string tableName)
+        {
+            string type, parent, cat,table;
+            this.Lookup(interf,out type,out cat,out parent,out table);
+            if (type != "INTERFACE") return "";
+            DataTable interfDT = GETDataTable(table);
+            DataTable classDT = GETDataTable(tableName);
+            for (int i = 0; i < interfDT.Rows.Count; i++)
+            {
+                for (int j = 0; j < classDT.Rows.Count; j++)
+                {
+                    if (interfDT.Rows[i]["Name"].ToString() == classDT.Rows[j]["Name"].ToString() && interfDT.Rows[i]["Type"].ToString() == classDT.Rows[j]["Type"].ToString())
+                        break;
+                    //MessageBox.Show(interfDT.Rows[i]["Name"].ToString() + "==" + classDT.Rows[j]["Name"].ToString());
+                    if (j == classDT.Rows.Count - 1)
+                        return "false";
+                }
+            }
 
-        //    }
-        //}
+                return "true";
+        }
+        public bool BaseMethod(string tName,string param)
+        {
+            DataTable dt = GetTableFromClassName(tName);
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i]["Name"].ToString() == tName && dt.Rows[i]["Type"].ToString() == param)
+                    return true;
+            }    
+            return false;
+        }
+        public DataTable GetTableFromClassName(string tName)
+        {
+            string type, catagory, parent, table;
+            this.Lookup(tName,out type,out catagory,out parent, out table);
+            for (int j = 0; j < CCTs.Tables.Count; j++)
+            {
+                if (CCTs.Tables[j].TableName == table)
+                {
+                    return CCTs.Tables[j];
+                }
+            }
+            return new DataTable("NULL");
+        }
     }
 }

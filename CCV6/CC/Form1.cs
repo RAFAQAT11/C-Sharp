@@ -32,7 +32,7 @@ namespace CC
             //richTextBox.ScrollBars = textBox1.ScrollBars;
             updateLineNumber();
         }
-        int x = 242, y = 0;
+        int x = 186, y = 0;
         private void updateLineNumber()
         {
             //we get index of first visible char and number of first visible line
@@ -575,6 +575,16 @@ namespace CC
                 dataSetI++;
             label4.Text = ds.Tables[dataSetI].TableName.ToString();
             dataGridView2.DataSource = ds.Tables[dataSetI];
+        }
+
+        private void dataGridView3_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
 
         

@@ -21,7 +21,8 @@ namespace CC
         DataTable GCT;
         StackX stack;
         string retTypeCheck = "";        
-
+        string classInter="";
+        string main = "Main";
         public SyntaxAnalyzer(StorageStructure[] arr,RichTextBox rtb5,DataGridView dgv,DataGridView dgv2)
         {
             this.dgv = dgv;
@@ -37,9 +38,11 @@ namespace CC
             string type = "";
             if (arr[i].clss == "ID")
             {
-                type = GETReturnType(arr[i].word);
+                string name = arr[i].word;
+                CheckInterfaceOrAbstract(name);
                 //MessageBox.Show("id="+type);
                 i++;
+                type = arr[i-3].clss == "THIS"? GETFuncReturnType(name) :arr[i].clss == "OSB"? GETFuncReturnType(name): GETReturnType(name);
                 if (List(type))
                 {
                     return true;
@@ -59,10 +62,12 @@ namespace CC
             }
             else if (arr[i].clss == "OSB")
             {
-                if (FunCall(out type2))
+                if (FunCall(type))
                 {
+                    //type2 = param;
+                    param = "";
                     //MessageBox.Show("funcall="+type2);
-                    if(!IsMatched(type2, type.Substring(0,type.IndexOf(">")))) InsertError(type2+" and "+type.Substring(0,type.IndexOf(">"))+" :Type Mismatched");
+                    //if(!IsMatched(type2, type.Substring(0,type.IndexOf(">")))) InsertError(type2+" and "+type.Substring(0,type.IndexOf(">"))+" :Type Mismatched");
                     return true;
                 }
             }
@@ -85,8 +90,8 @@ namespace CC
             }
             else if (arr[i].clss == "DOT")
             {
-                if (OBJCall())
-                return true;
+                if (OBJCall(type))
+                    return true;
             }
             else if (arr[i].clss == "INCDEC")
             {
@@ -104,32 +109,34 @@ namespace CC
             {
                 i++;
                 if (Values(out type,typeO))
+                {
+                    if (!IsMatched((typeO.Contains("_") ? typeO.Substring(0, typeO.IndexOf("_")) : typeO).ToLower(), (type.Contains("_") ? type.Substring(0, type.IndexOf("_")) : type).ToLower())) InsertError((typeO.Contains("_") ? typeO.Substring(0, typeO.IndexOf("_")) : typeO).ToLower() + " and " + (type.Contains("_") ? type.Substring(0, type.IndexOf("_")) : type).ToLower() + "Type Mismatched");
                     return true;
+                }
             }
             return false;
         }
-        public bool FunCall(out string type)
+        public bool FunCall(string type)
         {
-            type = "";
             if (arr[i].clss == "OSB")
             {
                 i++;
                 if (Params())
                 {
-                    type = param;
-                    param = "";
                     if (arr[i].clss == "CSB")
                     {
+                        if (!IsMatched(param, type.Contains(">") ? type.Substring(0, type.IndexOf(">")) : type)) InsertError(param + " and " + (type.Contains(">") ? type.Substring(0, type.IndexOf(">")) : type) + " :Type Mismatched");
                         i++;
-                        if (FunList())
+                        if (FunList(type.Contains(">") ? type.Substring(type.IndexOf(">")+1) : type))
                             return true;
                     }
                 }
             }
             return false;
         }
-        public bool FunList()
+        public bool FunList(string type)
         {
+            string type2 = "";
             if (arr[i].clss == "OLB" || arr[i].clss == "DOT")
             {
                 if (arr[i].clss == "DOT")
@@ -137,14 +144,15 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type = GETOBJReturnType(type,arr[i].word);
                         i++;
-                        if (FunList2())
+                        if (FunList2(type))
                             return true;
                     }
                 }
-                else if(FunArr())
+                else if(FunArr(type,out type2))
                 {
-                    if (Arr4List())
+                    if (Arr4List(type))
                         return true;
                         
                 }
@@ -157,19 +165,25 @@ namespace CC
             }
             return false;
         }
-        public bool FunList2()
+        public bool FunList2(string type)
         {
-            string type = "";
-            if (FunCall(out type))
+            string type2 = "";
+            if (FunCall(type))
                 return true;
-            else if (Assign(out type,""))
+            else if (Assign(out type2,""))
+            {
+                if (!IsMatched(type2, type)) InsertError(type + " and " + type2 + " :Type Mismatched");
                 return true;
-            else if (OBJCall())
+            }
+            else if (OBJCall(type))
                 return true;
-            else if (Arr4())
+            else if (Arr4(type))
                 return true;
             else if (INCDEC())
+            {
+                Compatibility(type,"INCDEC");
                 return true;
+            }
 
             return false;
         }
@@ -194,7 +208,7 @@ namespace CC
                 {
                     string name = arr[i].word;
                     i++;
-                    if (AllInit(out type2,type))
+                    if (AllInit(out type2,type+"[]"))
                     {
                         InsertFT(name, type + "[]", type2);
                         return true;
@@ -211,7 +225,7 @@ namespace CC
                     {
                         string name = arr[i].word;
                         i++;
-                        if (AllInit(out type2,type))
+                        if (AllInit(out type2,type+"[,]"))
                         {
                             InsertFT(name, type + "[,]", type2);
                             return true;
@@ -232,20 +246,22 @@ namespace CC
             string type2 = "";
             if (arr[i].clss == "CLB")
             {
+                if (!IsMatched(type, (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[]")) InsertError(type + " and " + ((type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[]") + " :Type Mismatched");
                 i++;
-                if (ARLF(type)) 
+                if (ARLF(type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type)) 
                     return true;
             }
             else if (arr[i].clss == "COMMA")
             {
                 i++;
-                if(OE(out type))
+                if(OE(out type2))
                 {
                     if (!IsMatched(type2.Contains("_") ? type2.Substring(0, type2.IndexOf("_")).ToLower() : type2, type2.Contains("_") ? type2.Substring(0, type2.IndexOf("_")).ToLower() : type2)) InsertError((type2.Contains("_") ? type2.Substring(0, type2.IndexOf("_")).ToLower() : type2) + " and " + (type2.Contains("_") ? type2.Substring(0, type2.IndexOf("_")).ToLower() : type2) + " :Type Mismatched");
                     if (arr[i].clss == "CLB")
                     {
+                        if (!IsMatched(type, (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]")) InsertError(type + " and " + ((type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]") + " :Type Mismatched");
                         i++;
-                        if (ARLF(type))
+                        if (ARLF(type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type))
                             return true;
                     }
                 }
@@ -260,8 +276,9 @@ namespace CC
                 i++;
                 if (arr[i].clss == "ID")
                 {
+                    type = GETOBJReturnType(type, arr[i].word);
                     i++;
-                    if (DOTList())
+                    if (DOTList(type))
                         return true;
                 }
             }
@@ -277,19 +294,40 @@ namespace CC
             }
             return false;
         }
-        public bool DOTList()
+        public bool DOTList(string type)
         {
-            string type = "";
-            if (FunCall(out type))
-                return true;
-            else if (OBJCall())
-                return true;
-            else if (Arr4())
-                return true;
-            else if (Assign(out type,""))
-                return true;
-            else if (INCDEC())
-                return true;
+            string type2 = "";
+            if (arr[i].clss == "OSB")
+            {
+                if (FunCall(type))
+                    return true;
+            }
+            else if (arr[i].clss == "DOT")
+            {
+                if (OBJCall(type))
+                    return true;
+            }
+            else if (arr[i].clss == "OLB")
+            {
+                if (Arr4(type))
+                    return true;
+            }
+            else if (arr[i].clss == "ASSIGN-OPT")
+            {
+                if (Assign(out type2, ""))
+                {
+                    if (!IsMatched(type, type2)) InsertError(type + " and " + type2 + ": dismatched");
+                    return true;
+                }
+            }
+            else if (arr[i].clss == "INCDEC")
+            {
+                if (INCDEC())
+                {
+                    Compatibility(type, "INCDEC");
+                    return true;
+                }
+            }
             return false;
         }
         public bool Arr2()
@@ -351,11 +389,11 @@ namespace CC
         public bool Arr2CLList()
         {
             string type = "";
-            if (FunCall(out type))
+            if (FunCall(type))
                 return true;
             else if (Arr(type))
                 return true;
-            else if (OBJCall())
+            else if (OBJCall(""))
                 return true;
             if (INCDEC())
                 return true;
@@ -397,67 +435,73 @@ namespace CC
             }
             return false;
         }
-        public bool OBJCall()
+        public bool OBJCall(string type)
         {
             if (arr[i].clss == "DOT")
             {
                 i++;
                 if (arr[i].clss == "ID")
                 {
+                    type = GETOBJReturnType(type,arr[i].word);
+                    //MessageBox.Show("OBJ = "+type);
                     i++;
-                    if (OBJCList())
+                    if (OBJCList(type))
                         return true;
                 }
             }
             return false;
         }
-        public bool OBJCList()
+        public bool OBJCList(string type)
         {
-            string type = "";
+            string type2 = "";
             if (arr[i].clss == "DOT")
             {
-                if (OBJCall())
+                if (OBJCall(type))
                     return true;
             }
             else if (arr[i].clss == "OSB")
             {
-                if (FunCall(out type))
+                if (FunCall(type))
                     return true;
             }
             else if(arr[i].clss == "ASSIGN-OPT")
             {
-                if (Assign(out type,""))
+                if (Assign(out type2,type))
+                {
+                    if (!IsMatched(type, type2)) InsertError(type+" and "+type2+": dismatched");
                     return true;
+                }
             }
             else if (arr[i].clss == "OLB")
             {
-                if (Arr4())
+                if (Arr4(type))
                     return true;
             }
             else if (arr[i].clss == "INCDEC")
             {
+                Compatibility(type,"INCDEC");
                 if (INCDEC())
                     return true;
             }
 
             return false;
         }
-        public bool OBJCList2()
-        {
-            if (arr[i].clss == "DOT")
-            {
-                if (OBJCall())
-                    return true;
-            }
-            else
-            {
-                if (arr[i].clss == "TERMINATOR") //<----------------------------- POSSIBLE PUNGA
-                {
-                    return true;
-                }
-            }
-            return false ;
-        }
+        //public bool OBJCList2()
+        //{
+        //    if (arr[i].clss == "DOT")
+        //    {
+        //        if (OBJCall(""))
+        //            return true;
+        //    }
+        //    else
+        //    {
+        //        if (arr[i].clss == "TERMINATOR") //<----------------------------- POSSIBLE PUNGA
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return false ;
+        //}
         public bool INCDEC()
         {
             if (arr[i].clss == "INCDEC")
@@ -678,6 +722,7 @@ namespace CC
                 string name = arr[i].word;
                 //GETReturnType(name);
                 i++;
+                name = arr[i].clss == "OSB" ? GETFuncReturnType(name) : GETReturnType(name);
                 if (OEList(out type2, name))
                 {
                     type = type2;
@@ -692,6 +737,7 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type = GETFuncReturnType(arr[i].word);
                         i++;
                         if (OEList(out type2, type))
                             return true;
@@ -704,13 +750,17 @@ namespace CC
         }
         public bool INCDECList(out string type)
         {
+            string type2 = "";
             type = "";
             if (arr[i].clss == "ID")
             {
                 type = GETReturnType(arr[i].word);
                 i++;
-                if (INCCall())
+                if (INCCall(out type2, type))
+                {
+                    type = type2;
                     return true;
+                }
             }
             else if (arr[i].clss == "THIS")
             {
@@ -720,8 +770,9 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type = GETFuncReturnType(arr[i].word);
                         i++;
-                        if (INCCall())
+                        if (INCCall(out type2,type))
                             return true;
                     }
                 }
@@ -729,18 +780,19 @@ namespace CC
             return false;
         }
 
-        public bool INCCall()
+        public bool INCCall(out string type2,string type)
         {
+            type2 = type;
             if (arr[i].clss == "OSB" || arr[i].clss == "OLB")
             {
                 if (arr[i].clss == "OSB")
                 {
-                    if (FunCall3())
+                    if (FunCall3(out type2,type))
                         return true;
                 }
                 else if (arr[i].clss == "OLB")
                 {
-                    if (Arr3())
+                    if (Arr3(out type2,type))
                         return true;
                 }
             }
@@ -751,74 +803,72 @@ namespace CC
             }
             return false;
         }
-        public bool OEList(out string type,string name)
+        public bool OEList(out string type2,string typeO)
         {
-            type = "";
+            type2 = typeO;
             if (arr[i].clss == "DOT" || arr[i].clss == "OLB" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
             {
                 if (arr[i].clss == "OSB")
                 {
-                    if (FunCallOE(out type))
-                    {
-                        string typeO = GETFuncReturnType(name);
-                        if(!IsMatched(typeO.Substring(0,typeO.IndexOf(">")),type)) InsertError((typeO.Substring(0,typeO.IndexOf(">"))+" and "+type+":Type Mismatched"));
-                        type = typeO.Substring(typeO.IndexOf(">")+1);
+                    //string typeO = GETFuncReturnType(name);
+                    if (FunCallOE(out type2,typeO))
                         return true;
-                    }
                 }
                 else if (arr[i].clss == "DOT")
                 {
-                    if (OBJCallOE())
+                    //string typeO = GETFuncReturnType(name);
+                    if (OBJCallOE(out type2,typeO.Contains("[")?typeO.Substring(0,typeO.IndexOf("[")):typeO))
                         return true;
                 }
                 else if (arr[i].clss == "OLB")
                 {
-                    string typeO = GETReturnType(name);
-                    if (ArrOE(out type))
+                    //string typeO = GETReturnType(name);
+                    if (ArrOE(out type2,typeO))
                     {
-                        string type2 = typeO.Contains("[")?typeO.Substring(0,typeO.IndexOf("[")):typeO;
-                        type = type2 + type;
-                        if (!IsMatched(type, typeO)) InsertError(type + " and "+ typeO +"Type Mismatched");
+                        //string type3 = typeO.Contains("[")?typeO.Substring(0,typeO.IndexOf("[")):typeO;
+                        //type2 = type3 + type2;
+                        //if (!IsMatched(type2, typeO)) InsertError(type2 + " and "+ typeO +"Type Mismatched");
                         return true;
                     }
                 }
                 else if (arr[i].clss == "INCDEC")
                 {
-                    string typeO = GETReturnType(name);
-                    type = Compatibility(typeO,"INCDEC");
+                    //string typeO = GETReturnType(name);
+                    type2 = Compatibility(typeO,"INCDEC");
                     if (INCDEC())
                        return true;
                 }
             }
             else
             {
-                type = GETReturnType(name);
                 if (arr[i].clss == "MDM" || arr[i].clss == "CCB" || arr[i].clss == "PM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
                     return true;
             }
             return false;
         }
-        public bool FunCallOE(out string type)
+        public bool FunCallOE(out string type2,string typeO)
         {
-            type = "";
+            type2 = "";
             if (arr[i].clss == "OSB")
             {
                 i++;
                 if (Params())
                     if (arr[i].clss == "CSB")
                     {
-                        type = param;
+                        type2 = param;
+                        if (!IsMatched(typeO.Contains(">") ? typeO.Substring(0, typeO.IndexOf(">")) : typeO, type2)) InsertError((typeO.Contains(">") ? typeO.Substring(0, typeO.IndexOf(">")) : typeO) + " and " + type2 + ":Type Mismatched");
+                        type2 = typeO.Substring(typeO.IndexOf(">") + 1);
                         param = "";
                         i++;
-                        if (FunListOE())
+                        if (FunListOE(out type2, typeO.Contains(">") ? typeO.Substring(typeO.IndexOf(">")+1) : typeO ))
                             return true;
                     }
             }
             return false;
         }
-        public bool FunListOE()
+        public bool FunListOE(out string type2, string type)
         {
-            string type = "";
+            type2 = type;
             if (arr[i].clss == "OLB" || arr[i].clss == "DOT")
             {
                 if (arr[i].clss == "DOT")
@@ -826,16 +876,31 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type2 = GETOBJReturnType(type,arr[i].word);
                         i++;
-                        if (OEList(out type,""))
+                        if (OEList(out type2,type2))
                             return true;
                     }
                 }
-                else if (FunArr())
+                else if (FunArr(type2,out type2))
                 {
-                    if (ArrOEVal())
+                    if (ArrOEVal(out type2, type.Substring(0,type.IndexOf("["))))
                         return true;
-                        
+                    //if (arr[i].clss == "DOT")
+                    //{
+                    //    i++;
+                    //    if (arr[i].clss == "ID")
+                    //    {
+                    //        type2 = GETOBJReturnType(type, arr[i].word);
+                    //        i++;
+                            
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    if (arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR")
+                    //        return true;
+                    //}
                 }
                 return false;
             }
@@ -860,16 +925,17 @@ namespace CC
         //        return true;
         //    return false;
         //}
-        public bool OBJCallOE()
+        public bool OBJCallOE(out string type2,string type)
         {
-            string type = "";
+            type2 = type;
             if (arr[i].clss == "DOT")
             {
                 i++;
                 if (arr[i].clss == "ID")
                 {
+                    type2 = GETOBJReturnType(type,arr[i].word);
                     i++;
-                    if (OEList(out type,""))
+                    if (OEList(out type2,type2))
                         return true;
                 }
             }
@@ -889,9 +955,9 @@ namespace CC
         //        return true;
         //    return false;
         //}
-        public bool ArrOE(out string type)
+        public bool ArrOE(out string type3,string type)
         {
-            type = "";
+            type3 = "";
             string type2 = "";
             if (arr[i].clss == "OLB")
             {
@@ -900,21 +966,22 @@ namespace CC
                 if(OE(out type2))
                 {
                     Compatibility(type2,"INCDEC");
-                    if (ArrOEList(out type))
+                    if (ArrOEList(out type3,type))
                         return true;
                 }
             }
             return false;
         }
-        public bool ArrOEList(out string type)
+        public bool ArrOEList(out string type3,string type)
         {
             string type2 = "";
-            type = "";
+            type3 = "";
             if (arr[i].clss == "CLB")
             {
-                type = "[]";
+                if (!IsMatched(type, (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[]")) InsertError(type + " and " + (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[]" + ":type mismatched");
+                type3 = (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type);
                 i++;
-                if (ArrOEVal())
+                if (ArrOEVal(out type3,type3))
                     return true;
             }
             else if (arr[i].clss == "COMMA")
@@ -924,18 +991,19 @@ namespace CC
                 if(OE(out type2))
                     if (arr[i].clss == "CLB")
                     {
-                        type = "[,]";
+                        if (!IsMatched(type, (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]")) InsertError(type + " and " + (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]" + ":type mismatched");
+                        type3 = (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]";
                         Compatibility(type2, "INCDEC");
                         i++;
-                        if (ArrOEVal())
+                        if (ArrOEVal(out type3,type3))
                             return true;
                     }
             }
             return false;
         }
-        public bool ArrOEVal()
+        public bool ArrOEVal(out string type2,string type)
         {
-            string type = "";
+            type2 = type;
             if (arr[i].clss == "DOT" || arr[i].clss == "INCDEC")
             {
                 if (arr[i].clss == "DOT")
@@ -943,13 +1011,17 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type2 = GETOBJReturnType(type.Contains("[")?type.Substring(0,type.IndexOf("[")):type,arr[i].word);
                         i++;
-                        if (OEList(out type,""))
+                        if (OEList(out type2,type2))
                             return true;
                     }
                 }
                 else if (INCDEC())
+                {
+                    Compatibility(type2,"INCDEC");
                     return true;
+                }
             }
             else
             {
@@ -1306,11 +1378,11 @@ namespace CC
             string type = "";
             if (Assign(out type,""))
                 return true;
-            else if (FunCall(out type))
+            else if (FunCall(type))
                 return true;
-            else if (OBJCall())
+            else if (OBJCall(""))
                 return true;
-            else if (Arr4())
+            else if (Arr4(""))
                 return true;
             else if (Init3())
                 return true;
@@ -1731,8 +1803,9 @@ namespace CC
                         retTypeCheck = DT;
                         i++;
                         InsertCT(name, (args==""?"void":args) + ">" + DT, AM, TM, false, CT);
+                        CheckVO(AM, TM, (args == "" ? "void" : args) + ">" + DT,name);
                         args = "";
-                        if (Super_Class())
+                        if(name == "Main") CheckMain(AM,TM);
                             if (arr[i].clss == "OCB")
                             {
                                 i++;
@@ -1833,6 +1906,7 @@ namespace CC
             if (arr[i].clss == "ID")
             {
                 string name = arr[i].word;
+                CheckInterfaceOrAbstract(name);
                 DT = arr[i].word;
                 i++;
                 if (arr[i].clss == "OSB")
@@ -1928,6 +2002,8 @@ namespace CC
                         if (Params())
                             if (arr[i].clss == "CSB")
                             {
+                                BaseMethod((param == "" ? "void" : param) + ">" + "void");
+                                param = "";
                                 i++;
                                 return true;
                             }
@@ -2322,6 +2398,7 @@ namespace CC
                 this.TypeIfExistThenInsert(name, DT, AM, TM, isConst, CT);
                 if (AllInit(out type,DT))
                 {
+                    if (!IsMatched((type.Contains("_") ? type.Substring(0, type.IndexOf("_")) : type).ToLower(), DT)) InsertError(DT + " and " + (type.Contains("_") ? type.Substring(0, type.IndexOf("_")) : type).ToLower() + "Type mismatched");
                     if (arr[i].clss == "TERMINATOR")
                     {
                         i++;
@@ -2357,15 +2434,18 @@ namespace CC
                         IfConstructNameRightThenInsert(name, (args == "" ? "void" : args) + ">" + "void", AM, TM, isConst, CT);
                         args = "";
                         i++;
-                        if (arr[i].clss == "OCB")
+                        if (Super_Class())
                         {
-                            i++;
-                            if(MST())
-                                if (arr[i].clss == "CCB")
-                                {
-                                    i++;
-                                    return true;
-                                }
+                            if (arr[i].clss == "OCB")
+                            {
+                                i++;
+                                if (MST())
+                                    if (arr[i].clss == "CCB")
+                                    {
+                                        i++;
+                                        return true;
+                                    }
+                            }
                         }
                         
                     }
@@ -2392,11 +2472,14 @@ namespace CC
                             {
                                 i++;
                                 if (ClassList(CT))
+                                {
+                                    CheckClassInheritToInterface(parent);
                                     if (arr[i].clss == "CCB")
                                     {
                                         i++;
                                         return true;
                                     }
+                                }
                             }
                     }
                 }    
@@ -2473,6 +2556,7 @@ namespace CC
                             if (arr[i].clss == "CSB")
                             {
                                 InsertCT(name, (args==""?"void>"+DT:args+">"+DT), "public", "None", false, CT);
+                                args = "";
                                 i++;
                                 return true;
                             }
@@ -2486,6 +2570,7 @@ namespace CC
             string type = "", cat="GENERAL", parent = "None", name = "";
             if (arr[i].clss == "INTERFACE")
             {
+                classInter = "INTERFACE";
                 DataTable CT = symentic.CreateCT();
                 type = "INTERFACE";
                 i++;
@@ -2500,6 +2585,7 @@ namespace CC
                         if(INTMethod2(CT))
                             if (arr[i].clss == "CCB")
                             {
+                                classInter = "";
                                 i++;
                                 return true;
                             }
@@ -2547,6 +2633,7 @@ namespace CC
                             if (arr[i].clss == "CCB")
                             {
                                 i++;
+                                if (main == "Main") InsertError("Main does't exist");
                                 dgv.DataSource = symentic.GetTableData1();
                                 dgv2.DataSource = symentic.GetFT();
                                 return true;
@@ -2588,23 +2675,28 @@ namespace CC
                 return true;
             return false;
         }
-        public bool FunCall3()
+        public bool FunCall3(out string type2,string type)
         {
+            type2 = "";
             if (arr[i].clss == "OSB")
             {
                 i++;
                 if (Params())
                     if (arr[i].clss == "CSB")
                     {
+                        if (!IsMatched(type.Substring(0, type.IndexOf(">")), param)) InsertError(type + " and " + type.Substring(0, type.IndexOf(">")) + "Type Mismatched");
+                        param = "";
+                        type = type2 = type.Substring(type.IndexOf(">")+1);
                         i++;
-                        if (Fun3List())
+                        if (Fun3List(out type2,type))
                             return true;
                     }
             }
             return false;
         }
-        public bool Fun3List()
+        public bool Fun3List(out string type2,string type)
         {
+            type2 = "";
             if (arr[i].clss == "OLB" || arr[i].clss == "DOT")
             {
                 if (arr[i].clss == "DOT")
@@ -2612,15 +2704,32 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type2 = GETOBJReturnType(type,arr[i].word);
                         i++;
-                        if (Chain())
+                        if (Chain(out type2,type2))
                             return true;
                     }
                 }
-                else if (FunArr())
+                else if (FunArr(type,out type2))
                 {
-                    if (Chain())
-                        return true;
+                    if (!IsMatched(type, type.Substring(0, type.IndexOf("[")) + type2)) InsertError(type + "" + (type.Substring(0, type.IndexOf("[")) + type2) + ":type mismatched");
+
+                    if (arr[i].clss == "DOT")
+                    {
+                        i++;
+                        if (arr[i].clss == "ID")
+                        {
+                            type2= GETOBJReturnType(type.Substring(0, type.IndexOf("[")),arr[i].word);
+                            i++;
+                            if (Chain(out type2, type2))
+                                return true;
+                        }
+                    }
+                    else
+                    {
+                        if (arr[i].clss == "TERMINATOR" || arr[i].clss == "COMMA")
+                            return true;
+                    }
                 }
                 return false;
             }
@@ -2644,47 +2753,57 @@ namespace CC
         //        return true;
         //    return false;
         //}
-        public bool Arr3()
+        public bool Arr3(out string type2, string type)
         {
-            if (Arr8())
-                if (Arr3List())
+            if (Arr8(type,out type2))
+                if (Arr3List(out type2,type.Substring(0,type.IndexOf("["))))
                     return true;
             return false;
         }
-        public bool Arr3List()
+        public bool Arr3List(out string type2,string type)
         {
-            if (Fun3List())
+            if (Fun3List(out type2,type))
                 return true;
             else if (arr[i].clss == "TERMINATOR" || arr[i].clss == "COMMA")
                 return true;
             return false;
         }
-        public bool Arr8()
+        public bool Arr8(string type,out string type3)
         {
-            string type = "";
+            type3 = "";
+            string type2 = "";
             if (arr[i].clss == "OLB")
             {
                 i++;
-                if (OE(out type))
-                    if (Arr8List())
+                if (OE(out type2))
+                {
+                    Compatibility(type2,"INCDEC");
+                    if (Arr8List(type,out type3))
                         return true;
+                }
             }
             return false;
         }
-        public bool Arr8List()
+        public bool Arr8List(string type,out string type3)
         {
+            type3 = "";
             if (arr[i].clss == "CLB")
             {
+                type3 = "[]";
+                if (!IsMatched(type, type.Substring(0, type.IndexOf("[")) + "[]")) InsertError(type+" and "+type.Substring(0, type.IndexOf("[")) + "[]"+":Type Mismatched");
                 i++;
                 return true;
             }
             else if (arr[i].clss == "COMMA")
             {
-                string type = "";
+                type3 = "[,]";
+                string type2 = "";
                 i++;
-                if (OE(out type))
+                if (OE(out type2))
                     if (arr[i].clss == "CLB")
                     {
+                        Compatibility(type2, "INCDEC");
+                        if (!IsMatched(type, (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]")) InsertError(type + " and " + (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type + "[,]") + "[,]" + ":Type Mismatched");
                         i++;
                         return true;
                     }
@@ -2692,16 +2811,20 @@ namespace CC
 
             return false;
         }
-        public bool Arr4()
+        public bool Arr4(string type)
         {
-            if (Arr8())
-                if (Arr4List())
+            string type2 = "";
+            if (Arr8(type,out type2))
+            {
+                type = type.Substring(0,type.IndexOf("["));
+                if (Arr4List(type))
                     return true;
+            }
             return false;
         }
-        public bool Arr4List()
+        public bool Arr4List(string type)
         {
-            string type = "";
+            string type2 = "";
             if (arr[i].clss == "DOT" || arr[i].clss == "ASSIGN-OPT" || arr[i].clss == "INCDEC")
             {
                 if (arr[i].clss == "DOT")
@@ -2709,18 +2832,23 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type = GETOBJReturnType(type.Contains("[")?type.Substring(0,type.IndexOf("[")):type,arr[i].word);
                         i++;
-                        if (Arr4DOTList())
+                        if (Arr4DOTList(type))
                             return true;
                     }
                 }
                 else if (arr[i].clss == "ASSIGN-OPT")
                 {
-                    if (Assign(out type,""))
+                    if (Assign(out type2, ""))
+                    {
+                        if (!IsMatched(type2, type)) InsertError(type2+" and "+type+":type Dismatched");
                         return true;
+                    }
                 }
                 else if (arr[i].clss == "INCDEC")
                 {
+                    Compatibility(type,"INCDEC");
                     if (INCDEC())
                         return true;
                 }
@@ -2733,34 +2861,38 @@ namespace CC
 
             return false;
         }
-        public bool Arr4DOTList()
+        public bool Arr4DOTList(string type)
         {
-            string type = "";
+            string type2 = "";
             if (arr[i].clss == "DOT" || arr[i].clss == "ASSIGN-OPT" || arr[i].clss == "INCDEC" || arr[i].clss == "OSB" || arr[i].clss == "OLB")
             {
                 if (arr[i].clss == "ASSIGN-OPT")
                 {
-                    if (Assign(out type,""))
-                        return true;
+                    if (Assign(out type2, ""))
+                    {
+                        if (!IsMatched(type2, type)) InsertError(type2 + " and " + type + ":type Dismatched");
+                           return true;
+                    }
                 }
                 else if (arr[i].clss == "INCDEC")
                 {
+                    Compatibility(type, "INCDEC");
                     if (INCDEC())
                         return true;
                 }
                 else if (arr[i].clss == "OSB")
                 {
-                    if (FunCall(out type))
+                    if (FunCall(type))
                         return true;
                 }
                 else if (arr[i].clss == "DOT")
                 {
-                    if (OBJCall())
+                    if (OBJCall(type))
                         return true;
                 }
                 else if (arr[i].clss == "OLB")
                 {
-                    if (Arr4())
+                    if (Arr4(type))
                         return true;
                 }
             }
@@ -2787,6 +2919,7 @@ namespace CC
             {
                 type = arr[i].word;
                 i++;
+                type = arr[i].clss == "OSB" ? GETFuncReturnType(type) : GETReturnType(type);
                 if (Assign3(out type2, type))
                 {
                     type = type2;
@@ -2825,43 +2958,72 @@ namespace CC
             {
                 i++;
                 if (ID_ST2(out type))
-                    return true;
+                {
+                    Compatibility(type,"INCDEC");
+                    if (Alles(ref type))
+                        return true;
+                }
             }
             return false;
         }
         public bool Alles(ref string type)
         {
             if (OE_(ref type))
+            {
+                if (arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "OR" || arr[i].clss == "MDM")
+                    if (Alles(ref type))
+                        return true;
                 return true;
+            }
             else if (AE_(ref type))
+            {
+                if (arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "OR" || arr[i].clss == "MDM")
+                    if (Alles(ref type))
+                        return true;
                 return true;
+            }
             else if (RE_(ref type))
+            {
+                if (arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "OR" || arr[i].clss == "MDM")
+                    if (Alles(ref type))
+                        return true;
                 return true;
+            }
             else if (E_(ref type))
+            {
+                if (arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "OR" || arr[i].clss == "MDM")
+                    if (Alles(ref type))
+                        return true;
                 return true;
+            }
             else if (T_(ref type))
+            {
+                if (arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "OR" || arr[i].clss == "MDM")
+                    if (Alles(ref type))
+                        return true;
                 return true;
+            }
             return false;
         }
-        public bool Assign3(out string type2,string name)
+        public bool Assign3(out string type2,string type)
         {
-            type2 = "";
+            type2 = type;
             if (arr[i].clss == "DOT" || arr[i].clss == "OLB" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC" || arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "OR" || arr[i].clss == "ASSIGN-OPT")
             {
                 if (arr[i].clss == "ASSIGN-OPT")
                 {
-                    string type = GETReturnType(name);
+                    //string type = GETReturnType(name);
                     if (Assign(out type2,type))
                     {
                         if (!IsMatched(type, type2))
                             InsertError(type + " and " + type2 + ": Mismatched");
-                        else type2 = type;
+                        //else type2 = type;
                         return true;
                     }
                 }
                 else if (arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "OR")
                 {
-                    string type = GETReturnType(name);
+                    //string type = GETReturnType(name);
                     if (Alles(ref type))
                         return true;
                 }
@@ -2879,7 +3041,7 @@ namespace CC
                 //}
                 else if (arr[i].clss == "DOT" || arr[i].clss == "OLB" || arr[i].clss == "OSB" || arr[i].clss == "INCDEC")
                 {
-                    if (OEList(out type2,name))
+                    if (OEList(out type2,type))
                     {
                         if (Alles(ref type2))
                             return true;
@@ -2898,9 +3060,10 @@ namespace CC
             type = "";
             if (arr[i].clss == "ID")
             {
-                type = Compatibility(arr[i].word,"INCDEC");
+                //type = Compatibility(arr[i].word, "INCDEC");
+                type = GETReturnType(arr[i].word);
                 i++;
-                if (Chain())
+                if (Chain(out type,type))
                     return true;
             }
             else if (arr[i].clss == "THIS")
@@ -2911,84 +3074,100 @@ namespace CC
                     i++;
                     if (arr[i].clss == "ID")
                     {
+                        type = GETFuncReturnType(arr[i].word);
                         i++;
-                        if (Chain())
+                        if (Chain(out type,type))
                             return true;
                     }
                 }
             }
             return false;
         }
-        public bool Chain()
+        public bool Chain(out string type2, string type)
         {
+            type2 = type;
             if (arr[i].clss == "OSB" || arr[i].clss == "DOT" || arr[i].clss == "OLB")
             {
                 if (arr[i].clss == "OSB")
                 {
-                    if (FunCall3())
+                    if (FunCall3(out type2,type))
                         return true;
                 }
                 else if (arr[i].clss == "DOT")
                 {
-                    if (OBJCall3())
+                    if (OBJCall3(out type2,type))
                         return true;
                 }
                 else if (arr[i].clss == "OLB")
                 {
-                    if (Arr3())
+                    if (Arr3(out type2,type))
                         return true;
                 }
             }
             else
             {
-                if (arr[i].clss == "TERMINATOR" || arr[i].clss == "COMMA")
+                if (arr[i].clss == "MDM" || arr[i].clss == "PM" || arr[i].clss == "RO" || arr[i].clss == "AND" || arr[i].clss == "TERMINATOR" || arr[i].clss == "CSB" || arr[i].clss == "COMMA" || arr[i].clss == "CLB" || arr[i].clss == "OR" || arr[i].clss == "CCB")
                     return true;
             }
             return false;
         }
-        public bool OBJCall3()
+        public bool OBJCall3(out string type2, string type)
         {
+            type2 = "";
             if (arr[i].clss == "DOT")
             {
                 i++;
                 if (arr[i].clss == "ID")
                 {
+                    type2 = GETOBJReturnType(type,arr[i].word);
                     i++;
-                    if (Chain())
+                    if (Chain(out type2,type2))
                         return true;
                 }
             }
             return false;
         }
-        public bool FunArr()
+        public bool FunArr(string type,out string type3)
         {
-            string type = "";
+            type3 = "";
+            string type2 = "";
             if (arr[i].clss == "OLB")
             {
                 i++;
-                if (OE(out type))
-                    if (FunArrList())
+                if (OE(out type2))
+                {
+                    Compatibility(type2,"INCDEC");
+                    if (FunArrList(type,out type3))
                         return true;
+                }
             }
             return false;
         }
-        public bool FunArrList()
+        public bool FunArrList(string type,out string type3)
         {
-            string type = "";
+            type3 = "";
+            string type2 = "";
             if (arr[i].clss == "CLB")
             {
+                if (!IsMatched(type, (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[]")) InsertError(type + " and " + (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[]" + ":type dismatched");
                 i++;
+                type3 = "[]";
                 return true;
             }
             else if (arr[i].clss == "COMMA")
             {
                 i++;
-                if(OE(out type))
+                if(OE(out type2))
+                {
+                    Compatibility(type2, "INCDEC");
+                    if (!IsMatched(type, (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]")) InsertError(type + " and " + (type.Contains("[") ? type.Substring(0, type.IndexOf("[")) : type) + "[,]" + ":type dismatched");
                     if (arr[i].clss == "CLB")
                     {
+                        type3 ="[,]";
                         i++;
                         return true;
                     }
+                }
             }
             return false;
         }
@@ -3010,7 +3189,7 @@ namespace CC
         {
             string type, catagory, parent,table;
             symentic.Lookup(name, out type, out catagory, out parent,out table);
-            if (type != "CLASS")
+            if (type == "")
                 InsertError(name+" is not decleared");
         }
         public bool DataTypeCheck(string type)
@@ -3059,8 +3238,9 @@ namespace CC
         }
         public void InsertFT(string name, string type)
         {
-                if (!symentic.Insert_FT(name, type, stack.Peek()))
-                    InsertError("'" + name + "' Already decleared in this scope");
+            if (classInter == "INTERFACE") return;
+            if (!symentic.Insert_FT(name, type, stack.Peek()))
+                InsertError("'" + name + "' Already decleared in this scope");
         }
         public void CheckInFT(string name, string type, DataTable CT)
         {
@@ -3180,6 +3360,15 @@ namespace CC
             {
                 return type;
             }
+
+            string tableRef = symentic.GETRef(symentic.GETClassNameFromTableName(GCT.TableName));
+
+            while (tableRef != "None")
+            {
+                if (CheckOBJReturnType(tableRef, ID) != "ERROR")
+                    return CheckOBJReturnType(tableRef, ID);
+                tableRef = symentic.GETRef(tableRef);
+            }
             InsertError(ID+" is't exist");
             return "ERROR";
 
@@ -3193,11 +3382,79 @@ namespace CC
                     return GCT.Rows[ii]["Type"].ToString();
                 }
             }
+
+            string tableRef = symentic.GETRef(symentic.GETClassNameFromTableName(GCT.TableName));
+
+            while (tableRef != "None")
+            {
+                if (CheckOBJReturnType(tableRef, ID) != "ERROR")
+                    return CheckOBJReturnType(tableRef, ID);
+                tableRef = symentic.GETRef(tableRef);
+            }
+
+
+
             return "ERROR";
         }
-        //public string GETOBJReturnType(string name)
-        //{
-            
-        //}
+        public string GETOBJReturnType(string cName,string name, string type="")
+        {
+            //cName = cName.Contains("[") ? cName.Substring(0, cName.IndexOf("[")) : cName;
+            string okay = symentic.GETOBJReturnType(cName,name,type);
+            if( okay== "false")
+            {
+                InsertError(name+" in "+cName+": does't exist");
+                return "ERROR";
+            }
+            return okay;
+        }
+        public string CheckOBJReturnType(string cName, string name, string type = "")
+        {
+            //cName = cName.Contains("[") ? cName.Substring(0, cName.IndexOf("[")) : cName;
+            string okay = symentic.CheckOBJReturnType(cName, name, type);
+            if (okay == "false")
+                return "ERROR";
+            return okay;
+        }
+        public void CheckVO(string AM, string TM, string retType, string name)
+        {
+            if (TM != "override") return;
+            string tableRef = symentic.GETRef(symentic.GETClassNameFromTableName(GCT.TableName));
+
+            while (tableRef != "None")
+            {
+                if (symentic.VerifyVO(tableRef, AM, "virtual", retType, name))
+                    return;
+                tableRef = symentic.GETRef(tableRef);
+            }
+            InsertError(name + ": Does't exist");
+        }
+        public void CheckClassInheritToInterface(string interf)
+        {
+            string result = symentic.CheckClassInheritToInterface(interf,GCT.TableName);
+            if (result == "false")
+                InsertError(symentic.GETClassNameFromTableName(GCT.TableName)+": does't impliment all method of '"+interf+"'");
+        }
+        public void BaseMethod(string param)
+        {
+            string parent = symentic.GETRef(symentic.GETClassNameFromTableName(GCT.TableName));
+            if (parent == "None")
+                InsertError(symentic.GETClassNameFromTableName(GCT.TableName)+": does't inherit any class");
+            if (!symentic.BaseMethod(parent, param))
+                InsertError(param+" in "+parent+":Does't found");
+        }
+        public void CheckMain(string AM,string TM)
+        {
+            if (main == "") InsertError("more than one Main is not allowed");
+            if (AM != "public" || TM!="static")
+                InsertError("Main Should be Public and static");
+            main = "";
+        }
+        public void CheckInterfaceOrAbstract(string cName)
+        {
+            string type, cat, parent, table;
+            symentic.Lookup(cName, out type, out cat, out parent, out table);
+            if (type == "INTERFACE" || cat == "ABSTRACT")
+                InsertError(cName+":Can't create instance of interface or abstract class");
+        }
     }
 }

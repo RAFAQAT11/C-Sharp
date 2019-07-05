@@ -1,0 +1,467 @@
+namespace name
+{
+	interface IX
+	{
+		float sum(float a,float b);
+		float mul(float a,float b);
+		float div(float a, float b);
+		float sub(float a,float b);			
+	}
+	
+	class A:IX
+	{
+		int a = 10;
+		float b = 1.0;
+		char c = 'C';
+		string s = "ABC";
+		public int aa =10;
+		public float bb =100.0;	
+		public A(int a, float b,char c,string s)
+		{
+			this.a =a;
+			this.b=b;
+			this.c =c;
+			this.s =s;			
+		}
+		public A()
+		{
+			
+		}
+	
+		float sum(float a,float b)
+		{
+			return a+b;
+		}
+		float mul(float a,float b)
+		{
+			return a*b;
+		}		
+		float div(float a,float b)
+		{
+			return a/b;
+		}		
+		float sub(float a,float b)
+		{
+			return a-b;
+		}
+		public virtual int Func(int a)
+		{
+			return this.a+a;
+		}
+	
+	}
+	class B:A
+	{
+		public A AA = new A();
+		public B():base(1,1.0,'1',"1")
+		{
+			
+		}
+		public override int Func(int a)
+		{
+			int sum =0;	
+			for(int i =0; i<a; i++)
+				sum+=i;
+			return sum;	
+		}
+		public float calculate(float a,float b)
+		{
+			return (a*b+Func(1)/div(1.0,1.0)*mul(1.0,1.0)+sum(1.0,1.0)-sub(1.0,1.0)*AA.aa*AA.bb+AA.Func(1));
+		}
+	}
+	abstract class X
+	{
+		int i =10;	
+		int ABC()
+		{
+			return 0;
+		}
+	
+	}
+	class C:X	
+	{
+		public C()
+		{
+			
+		}
+		public static int Main(int length)
+		{	
+			B[] b = new B[length];
+			B[,] b2 = new B[length,length];
+			b2[0,b[0].AA.aa].AA.aa= length*b[0].AA.aa*b[0].AA.bb*b[length].AA.aa*b2[0,0].AA.aa*b2[b[0].AA.aa,b[b2[b[0].AA.aa,b[0].Func(1)].AA.aa].AA.aa].AA.Func(1)*b[0].AA.Func(1)*ABC()*i;
+			return 0;	
+		}
+	}
+}
+
+namespace name
+{
+	interface IX
+	{
+		void abc(int i);
+		int xyz(int i);	
+	}
+	class A:IX
+	{
+		public A(int i)
+		{
+			
+		}
+	
+		void abc(int i)
+		{
+			
+		}
+		int xyz(int i)
+		{
+			return 0;
+		}
+	}
+	class B:A
+	{
+		public B():base(1)
+		{
+			
+		}
+		public void Func()
+		{
+			
+		}
+	}
+}
+
+
+namespace name
+{
+	interface IX
+	{
+		void abc(int i);
+		int xyz(int i);	
+	}
+	class A:IX
+	{
+		public A(int i)
+		{
+			
+		}
+	
+		void abc(int i)
+		{
+			
+		}
+		int xyz(int i)
+		{
+			return 0;
+		}
+	}
+	class B:A
+	{
+		public void Func():base(1)
+		{
+			
+		}
+	}
+}
+
+namespace name
+{
+	interface IX
+	{
+		void abc(int i);
+		int xyz(int i);	
+	}
+	class A:IX
+	{
+		public A(int i)
+		{
+			
+		}
+	
+		void abc(int i)
+		{
+			
+		}
+		int xyz(int i)
+		{
+			return 0;
+		}
+	}
+
+}
+
+namespace name
+{
+	class A
+	{
+		public A()
+		{	
+		}
+		public int num  = 10;
+		public void Func(int j)
+		{
+			return;
+		}
+	}
+	class X:A
+	{
+		public X()
+		{
+			
+		}
+		public virtual int xyz()
+		{
+			return 0;
+		}
+	
+		public void abc()
+		{
+			
+		}
+	
+	}
+	class B:X	
+	{
+		A a = new A();
+		public override int xyz()
+		{
+			return 0;
+		}
+	
+		int abc()
+		{
+			num =20*abc();	
+			Func(1);	
+			a.Func(1);
+			return 0;	
+		}
+	}
+}
+
+namespace name
+{
+	class X
+	{
+		public int a;	
+		public X()
+		{
+			
+		}
+			
+	}
+	
+	class A
+	{
+		public A()
+		{
+			
+		}
+	
+		public X main()
+		{
+			X x = new X();	
+			return x;
+		}
+	}
+	class B:A
+	{
+		public A[,] a = new A[5,8];	
+		public B()
+		{
+			
+		}
+		public A abc(int j)
+		{	A a = new A();
+			return a;
+		}
+	}
+	class C
+	{
+		int aa()
+		{
+			return 0;
+		}
+	
+		public int abc()
+		{
+			B[] b = new B[9];
+			b[9].a[0,0].main().a=10;
+			b[0].abc(1).main().a =aa();	
+			return 0;
+		}
+	}
+}
+
+namespace name 
+{
+	class abc
+	{
+		int k;
+		abc k;	
+	}
+
+}
+
+namespace name
+{
+	public class abs
+	{
+		public const int name;
+		public abs()
+		{
+			
+		}
+		int abc(int j,float k)
+		{
+			return 0;
+		}
+		public void main(int[] i , int j)
+		{
+			name++;	
+			abs ab = new abs();
+			main(new int[1],1);
+			i[0]++;	
+			abs[] aab = new abs[9];	
+			i[0]=(8*abc(1,1.0));
+			int jk;
+			jk = 123;
+			int[] jkl = {1,2,3};
+			for(int i=0; i<10; i++)
+			{
+				j++;
+				int abc = 10;
+				abc = 10*abc(1,1.0);
+			}
+			do 
+			{
+				int a =10;
+				abs g = new abs();	
+			}while(10*10<25*1.0);
+			if(abc(1,1.0)<10)
+			{
+				int iffa = 100;
+				float aa = 1.0;	
+			}
+			else 
+				int aa=(i[0]+ 1.0*1.0);
+		}
+	}		
+}
+
+namespace name
+{
+	public class abs
+	{
+		public const int name;
+		public void main(int[] i = {}, int j)
+		{
+			
+		}
+	
+	}		
+}
+
+
+
+namespace name
+{
+	public class abs
+	{
+		public const int name;
+		public void main(int i = 1, int j)
+		{
+			
+		}
+	
+	}		
+}
+
+
+namespace name
+{
+	public class abs
+	{
+		public const int name;
+	}
+	public class bcd
+	{
+		public bcd(int a, int b,int[] c, int[,] d)
+		{
+			
+		}
+		public const int name;
+		public const int mm25;	
+	}
+	public class cde:abs
+	{
+		public const int name;
+		int[,] aab;	
+		public static cde()
+		{
+			
+		}
+		public cde(int a)
+		{
+			
+		}
+		public void abc(int a,int b,int c,cde[] mm)
+		{
+			
+		}
+		void name()
+		{
+			
+		}	
+	}
+	public interface ITest
+	{
+		void name();
+		int name();
+	}		
+}
+
+namespace name
+{
+	public class abs
+	{
+		public const int name;
+	}
+	public class bcd
+	{
+		public bcd(int a, int b,int[] c, int[,] d)
+		{
+			
+		}
+		public const int name;
+		public const int mm25;	
+	}
+	public class cde:abs
+	{
+		public const int name;
+		int[,] aab;	
+		public static cde()
+		{
+			
+		}
+		public cde(int a)
+		{
+			
+		}
+		public void abc(int a,int b,int c,cde[] mm)
+		{
+			
+		}
+		void name()
+		{
+			
+		}
+	
+		int name;
+		int name;	
+	}
+	public interface ITest
+	{
+		void name();
+		int name();
+		
+	}		
+}
